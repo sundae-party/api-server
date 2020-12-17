@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package integration;
+
+option go_package = "sundae-party/api-server/pkg/apis/core/integration";
+
+service IntegrationHandler {
+    rpc Create (Integration) returns (Integration);
+    rpc Get (IntegrationServerRequest) returns (Integration);
+    rpc Delete (IntegrationServerRequest) returns (Integration);
+    rpc SetState (SetStateRequest) returns (State);
+    rpc CallService (CallServiceRequest) returns (CallServiceResponse);
+    rpc StorePut (StorePutRequest) returns (stream StorePutRequest);
+}
+
+message StorePutRequest {
+    string integration_name = 1;
+    string key = 2;
+    string value = 3;
+}
+
+message IntegrationServerRequest {
+    string integration_name = 1;
+}
+
+message CallServiceRequest {
+    string integration_name = 1;
+    Service service = 5;
+}
+
+message CallServiceResponse {
+    bool success = 1;
+    string error = 2;
+}
+
+message SetStateRequest {
+    string integration_name = 1;
+    State state = 5;
+}
+
+message Integration {
+    string name = 1;
+    string documentation = 2;
+    string version = 3;
+    string url = 4;
+    State state = 5;
+    string store_path = 6;
+    repeated Service services = 7;
+}
+
+message State {
+	bool connected = 1;
+}
+
+message Service {
+    string name = 1;
+    string data = 2;
+}

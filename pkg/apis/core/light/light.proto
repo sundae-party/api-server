@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package light;
+
+import "integration.proto";
+
+option go_package = "sundae-party/api-server/pkg/apis/core/light";
+
+service LightHandler {
+    rpc SetDesiredState (Light) returns (Light);
+    rpc SetState (Light) returns (Light);
+    rpc Create (Light) returns (Light);
+    rpc GetByDevice (integration.Integration) returns (stream Light);
+    rpc GetByIntegration (integration.Integration) returns (stream Light);
+}
+
+// message Integration {
+//     string name = 1;
+// }
+
+message Light {
+    string name = 1;
+    integration.Integration integration = 2;
+    string Device = 3;
+    string displayed_name = 4;
+    string room = 5;
+    State desired_state = 6;
+    State state = 7;
+}
+
+message ColorRGB {
+    int32 red = 1;
+    int32 green = 2;
+    int32 blue = 3;
+}
+
+message State {
+	int32 Brightness = 1;
+	ColorRGB colorRGB = 2;
+	bool on = 3;
+	int32 kelvin = 4;
+	enum FlashMode {
+        SHORT = 0;
+        LONG = 1;
+    };
+    FlashMode flashMode = 5;
+}
