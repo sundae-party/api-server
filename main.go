@@ -1,20 +1,34 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"net"
-	"sundae-party/api-server/pkg/apis/core/light"
 	"sundae-party/api-server/pkg/server"
 
-	"sundae-party/api-server/pkg/storage/etcd3"
+	"sundae-party/api-server/pkg/storage"
 
 	"google.golang.org/grpc"
 )
 
 func main() {
 
-	s := etcd3.NewStore()
-	//defer s.Client.Close()
+	ctx := context.Background()
+
+	mongo_ops := storage.StoreOption{
+		Type: "mongo",
+	}
+
+	etcd_ops := storage.StoreOption{
+		Type: "etcd3",
+	}
+
+	ms, _ := storage.NewStore(ctx, mongo_ops)
+	es, _ := storage.NewStore(ctx, etcd_ops)
+
+	fmt.Println(ms.GetIntegration("Hue"))
+	fmt.Println(es.GetIntegration("Hue"))
 
 	lis, err := net.Listen("tcp", "0.0.0.0:8443")
 	if err != nil {
@@ -22,7 +36,7 @@ func main() {
 	}
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
-	light.RegisterLightHandlerServer(grpcServer, &light.LightHandler{Store: s})
+	// light.RegisterLightHandlerServer(grpcServer, &light.LightHandler{Store: s})
 	go grpcServer.Serve(lis)
 
 	tlsConf := server.ServerConfig{
