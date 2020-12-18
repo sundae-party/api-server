@@ -1,13 +1,7 @@
 package light
 
 import (
-	context "context"
-	"testing"
-
 	"sundae-party/api-server/pkg/apis/core/integration"
-	"sundae-party/api-server/pkg/storage/etcd3"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 var (
@@ -49,45 +43,45 @@ var (
 	}
 )
 
-func TestCreate(t *testing.T) {
-	s := etcd3.NewStore()
-	lh := &LightHandler{Store: s}
+// func TestCreate(t *testing.T) {
+// 	s := etcd3.NewStore()
+// 	lh := &LightHandler{Store: s}
 
-	got0, err := lh.Create(context.TODO(), mockLight)
-	if err != nil {
-		println(err)
-		t.Fatal(err)
-	}
+// 	got0, err := lh.Create(context.TODO(), mockLight)
+// 	if err != nil {
+// 		println(err)
+// 		t.Fatal(err)
+// 	}
 
-	mockLight.Name = "Light 1"
-	_, err = lh.Create(context.TODO(), mockLight)
-	if err != nil {
-		println(err)
-		t.Fatal(err)
-	}
-	t.Log(lh.Store.GetByIntegration("/Hue"))
+// 	mockLight.Name = "Light 1"
+// 	_, err = lh.Create(context.TODO(), mockLight)
+// 	if err != nil {
+// 		println(err)
+// 		t.Fatal(err)
+// 	}
+// 	t.Log(lh.Store.GetByIntegration("/Hue"))
 
-	mockLight.Name = "Light 2"
-	_, err = lh.Create(context.TODO(), mockLight)
-	if err != nil {
-		println(err)
-		t.Fatal(err)
-	}
+// 	mockLight.Name = "Light 2"
+// 	_, err = lh.Create(context.TODO(), mockLight)
+// 	if err != nil {
+// 		println(err)
+// 		t.Fatal(err)
+// 	}
 
-	mockLight.Name = "Light 0"
-	mockLight.Integration.Name = "Zwave"
-	_, err = lh.Create(context.TODO(), mockLight)
-	if err != nil {
-		println(err)
-		t.Fatal(err)
-	}
+// 	mockLight.Name = "Light 0"
+// 	mockLight.Integration.Name = "Zwave"
+// 	_, err = lh.Create(context.TODO(), mockLight)
+// 	if err != nil {
+// 		println(err)
+// 		t.Fatal(err)
+// 	}
 
-	data := lh.Store.GetByIntegration("Zwave")
-	for i, e := range data {
-		t.Logf("========> %d  ----  %s\n", i, e)
-	}
+// 	data := lh.Store.GetByIntegration("Zwave")
+// 	for i, e := range data {
+// 		t.Logf("========> %d  ----  %s\n", i, e)
+// 	}
 
-	if cmp.Equal(got0, &mockLight) == true {
-		t.Errorf("(context.TODO(), &mockLight) = %+v; want %+v\n", got0, mockLight)
-	}
-}
+// 	if cmp.Equal(got0, &mockLight) == true {
+// 		t.Errorf("(context.TODO(), &mockLight) = %+v; want %+v\n", got0, mockLight)
+// 	}
+// }

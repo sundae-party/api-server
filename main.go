@@ -1,34 +1,14 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"log"
 	"net"
 	"sundae-party/api-server/pkg/server"
-
-	"sundae-party/api-server/pkg/storage"
 
 	"google.golang.org/grpc"
 )
 
 func main() {
-
-	ctx := context.Background()
-
-	mongo_ops := storage.StoreOption{
-		Type: "mongo",
-	}
-
-	etcd_ops := storage.StoreOption{
-		Type: "etcd3",
-	}
-
-	ms, _ := storage.NewStore(ctx, mongo_ops)
-	es, _ := storage.NewStore(ctx, etcd_ops)
-
-	fmt.Println(ms.GetIntegration("Hue"))
-	fmt.Println(es.GetIntegration("Hue"))
 
 	lis, err := net.Listen("tcp", "0.0.0.0:8443")
 	if err != nil {

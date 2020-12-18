@@ -5,9 +5,12 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"log"
+
+	"sundae-party/api-server/pkg/apis/core/integration"
 
 	mongo_store "sundae-party/api-server/pkg/storage/mongo"
+
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var availableStoreType = map[string]string{
@@ -16,9 +19,9 @@ var availableStoreType = map[string]string{
 }
 
 type Store interface {
-	GetIntegration(string) string
-	PutIntegration(string) string
-	DeleteIntegration(string) string
+	PutIntegration(context.Context, *integration.Integration) (*integration.Integration, error)
+	GetIntegration(context.Context, string) (*integration.Integration, error)
+	DeleteIntegration(context.Context, *integration.Integration) (string, error)
 }
 
 type StoreOption struct {
@@ -38,55 +41,52 @@ type StoreOption struct {
 	DbName string
 }
 
-type etcdStore struct {
-	cli string
-}
-
-func NewStore(ctx context.Context, ops StoreOption) (Store, error) {
-
-	log.Printf("Creating %s", ops.Type)
-	// Check if type exist
-	ok := false
-	for _, v := range availableStoreType {
-		if v == ops.Type {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return nil, errors.New("This store type in not available.")
-	}
+func NewStore(ctx context.Context, ops *StoreOption) (Store, error) {
 
 	// If store type is mongo
 	if ops.Type == availableStoreType["mongo"] {
+		err := checkMongoOptions(ops)
+		if err != nil {
+			return nil, err
+		}
+		hosts := []string{fmt.Sprintf("%s:%s", ops.Address, ops.Port)}
+		creds := options.Credential{AuthSource: "sundae", Username: ops.User, Password: ops.Password}
 		// Create new MongoStore object with provided opetions
-
-		// TODO Check if ops.DbName != nil
-		// TODO Check user, password, cert and provide it.
-		ms, err := mongo_store.NewStore(ctx, ops.DbName)
+		ms, err := mongo_store.NewStore(ctx, ops.DbName, hosts, creds)
 		if err != nil {
 			fmt.Println(err)
 			return nil, errors.New("Fail connecting to mongo.")
 		}
 		return ms, nil
-
-	} else if ops.Type == availableStoreType["etcd3"] {
-		return &etcdStore{cli: "etcd3"}, nil
 	}
-	// TODO improve check ...
-	log.Fatal("Error creating store")
-	return nil, nil
+
+	// TODO If store type is ETCD
+	// if ops.Type == availableStoreType["etcd3"] {
+	// 	return &etcdStore{cli: "etcd3"}, nil
+	// }
+
+	return nil, errors.New("Store type unavailable.")
 }
 
-// ETCD
-func (es etcdStore) GetIntegration(integration string) string {
-	return "etcd Get"
-}
+func checkMongoOptions(ops *StoreOption) error {
+	// Check if db name provided
+	if ops.DbName == "" {
+		return errors.New("No database name provided for mongo store.")
+	}
 
-func (es etcdStore) PutIntegration(integration string) string {
-	return "etcd Put"
-}
+	// Check endpoint address
+	if len(ops.Address) == 0 || ops.Address[0] == "" {
+		return errors.New("No mongo address provided.")
+	}
 
-func (ems etcdStore) DeleteIntegration(integration string) string {
-	return "etcd Delete"
+	// Check endpoint port
+	if ops.Port == "" {
+		return errors.New("No mongo port provided.")
+	}
+
+	// Check if user and password or x509 provided
+	if (ops.User != "" && ops.Password != "") || ops.TLSConfig != nil {
+		return nil
+	}
+	return errors.New("Authentication options missing.")
 }
