@@ -19,7 +19,7 @@ jobs:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: pwd
           MONGO_INITDB_DATABASE: sundae
-        options: --user 1000 -v ${{ github.workspace }}/.github/workflows/init_mongo_test.js:/docker-entrypoint-initdb.d/init.js
+        options: -v ${{ github.workspace }}/.github/workflows/init_mongo_test.js:/docker-entrypoint-initdb.d/init.js
 
     steps:
       - name: Set up Go 1.15
@@ -36,6 +36,9 @@ jobs:
         run: |
           sudo apt update && \
           sudo apt install -y make
+
+      - name: Set right
+        run: sudo chown -R $USER:$USER /home/runner/work
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
