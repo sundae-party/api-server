@@ -19,7 +19,7 @@ jobs:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: pwd
           MONGO_INITDB_DATABASE: sundae
-        options: -v .github/workflows/init_mongo_test.js:/docker-entrypoint-initdb.d/init.js
+        options: -v ${{ github.workspace }}/.github/workflows/init_mongo_test.js:/docker-entrypoint-initdb.d/init.js
 
     steps:
       - name: Set up Go 1.15
