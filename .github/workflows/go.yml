@@ -20,7 +20,7 @@ jobs:
           MONGO_INITDB_ROOT_PASSWORD: pwd
           MONGO_INITDB_DATABASE: sundae
         volumes:
-          - "${{ PWD }}/.github/workflows/init_mongo_test.js:/docker-entrypoint-initdb.d/init.js"
+          - "${PWD##*/}/.github/workflows/init_mongo_test.js:/docker-entrypoint-initdb.d/init.js"
 
     steps:
       - name: Set up Go 1.15
