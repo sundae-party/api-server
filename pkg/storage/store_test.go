@@ -11,7 +11,7 @@ func TestNewStore(t *testing.T) {
 
 	mongoOpsOK := &StoreOption{
 		Type:     "mongo",
-		Address:  []string{"192.168.1.36"},
+		Address:  []string{"127.0.0.1"},
 		Port:     "27017",
 		User:     "sundae",
 		Password: "pass",
@@ -29,7 +29,7 @@ func TestPutIntegration(t *testing.T) {
 
 	mongoOpsOK := &StoreOption{
 		Type:     "mongo",
-		Address:  []string{"192.168.1.36"},
+		Address:  []string{"127.0.0.1"},
 		Port:     "27017",
 		User:     "sundae",
 		Password: "pass",
@@ -79,7 +79,7 @@ func TestGetIntegration(t *testing.T) {
 
 	mongoOpsOK := &StoreOption{
 		Type:     "mongo",
-		Address:  []string{"192.168.1.36"},
+		Address:  []string{"127.0.0.1"},
 		Port:     "27017",
 		User:     "sundae",
 		Password: "pass",
@@ -128,7 +128,7 @@ func TestDeleteIntegration(t *testing.T) {
 
 	mongoOpsOK := &StoreOption{
 		Type:     "mongo",
-		Address:  []string{"192.168.1.36"},
+		Address:  []string{"127.0.0.1"},
 		Port:     "27017",
 		User:     "sundae",
 		Password: "pass",

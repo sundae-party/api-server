@@ -1,0 +1,55 @@
+name: Go test
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mongodb-version: [4.4]
+
+    services:
+      mongo:
+        image: mongo:4.4
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: pwd
+          MONGO_INITDB_DATABASE: sundae
+        volumes:
+          - "init_mongo_test.js:/docker-entrypoint-initdb.d/init.js"
+
+    steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Install make and protobuf-compiler
+        run: |
+          apt update && \
+          apt install -y make protobuf-compiler
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Install go protobuf-compiler
+        run: |
+          go get -v \
+          google.golang.org/protobuf/cmd/protoc-gen-go \
+          google.golang.org/grpc/cmd/protoc-gen-go-grpc \
+          export PATH="$PATH:$(go env GOPATH)/bin"
+
+      - name: Get dependencies
+        run: |
+          go get -v -t -d ./...
+
+      - name: Build
+        run: make
+
+      - name: Test
+        run: make go_test
