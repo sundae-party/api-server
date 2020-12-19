@@ -37,12 +37,17 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
-      - name: Install go protobuf-compiler
+      - name: Install go protoc
         run: |
           go get -v \
           google.golang.org/protobuf/cmd/protoc-gen-go \
-          google.golang.org/grpc/cmd/protoc-gen-go-grpc \
-          export PATH="$PATH:$(go env GOPATH)/bin"
+          google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
+      - name: setup env
+        run: |
+          echo "::set-env name=GOPATH::$(go env GOPATH)"
+          echo "::add-path::$(go env GOPATH)/bin"
+        shell: bash
 
       - name: Get dependencies
         run: |
