@@ -35,7 +35,7 @@ jobs:
         run: |
           curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-linux-x86_64.zip
           unzip protoc-3.13.0-linux-x86_64.zip -d $HOME/.local
-          echo "${HOME}/.local/bin" >> $GITHUB_ENV
+          echo "name=PATH::${HOME}/.local/bin" >> $GITHUB_ENV
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
