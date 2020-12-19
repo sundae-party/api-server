@@ -44,11 +44,13 @@ jobs:
           google.golang.org/grpc/cmd/protoc-gen-go-grpc
 
       - name: setup env
-        run: |
-          echo "::set-env name=GOPATH::$(go env GOPATH)"
-          echo "::add-path::$(go env GOPATH)/bin"
-        shell: bash
+        env:
+          PATH: "$PATH:$(go env GOPATH)/bin"
 
+        # run: |
+        #   echo "name=GOPATH::$(go env GOPATH)" >> $GITHUB_ENV
+        #   echo "$(go env GOPATH)/bin" >> $GITHUB_ENV
+        # shell: bash
       - name: Get dependencies
         run: |
           go get -v -t -d ./...
