@@ -31,8 +31,8 @@ jobs:
 
       - name: Install make and protobuf-compiler
         run: |
-          apt update && \
-          apt install -y make protobuf-compiler
+          sudo apt update && \
+          sudo apt install -y make protobuf-compiler
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
