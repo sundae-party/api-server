@@ -26,16 +26,15 @@ jobs:
         with:
           go-version: 1.15
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          version: "3.13"
+
       - name: Install make and unzip
         run: |
           sudo apt update && \
           sudo apt install -y make unzip
-
-      - name: Install protobuf-compiler
-        run: |
-          curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-linux-x86_64.zip
-          unzip protoc-3.13.0-linux-x86_64.zip -d $HOME/.local
-          echo "name=PATH::${HOME}/.local/bin" >> $GITHUB_ENV
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
