@@ -24,6 +24,10 @@ steps:
   - name: init-mongodb
     image: mongo:4
     environment:
+      DB_ADMIN_USR:
+        from_secret: db_admin_user
+      DB_ADMIN_PWD:
+        from_secret: db_admin_pwd
       DB_USER:
         from_secret: db_user
       DB_PASS:
@@ -32,7 +36,7 @@ steps:
         from_secret: db_name
     commands:
       - date
-      - mongo --host mongo -u $DB_USER -p $DB_PASS init_mongo_test.js
+      - mongo --host mongo -u $DB_ADMIN_USR -p $DB_ADMIN_PWD init_mongo_test.js
 
   - name: go-test
     image: sundaeparty/devcontainer:latest
