@@ -24,7 +24,7 @@ steps:
     image: mongo:4
     commands:
       - date
-      - mongo --host admin:pwd@mongo:27017/sundae .github/workflows/init_mongo_test.js
+      - mongo --host mongo -u admin -p pwd .github/workflows/init_mongo_test.js
 
   - name: go-test
     image: sundaeparty/devcontainer:latest
