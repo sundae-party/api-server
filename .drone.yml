@@ -16,6 +16,7 @@ steps:
   - name: get-mongodb-version
     image: mongo:4
     commands:
+      - sleep 5
       - date
       - mongo --host mongo --eval "db.version()"
 
@@ -23,7 +24,7 @@ steps:
     image: mongo:4
     commands:
       - date
-      - admin:pwd@mongo:27017/sundae scripts/write.js
+      - admin:pwd@mongo:27017/sundae .github/workflows/init_mongo_test.js
 
   - name: go-test
     image: sundaeparty/devcontainer:latest
