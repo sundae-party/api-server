@@ -1,12 +1,12 @@
-db = db.getSiblingDB('sundae')
+db = db.getSiblingDB($DB_NAME)
 db.createUser(
     {
-        user: "sundae",
-        pwd: "pass",
+        user: $DB_USER,
+        pwd: $DB_PASS,
         roles: [
             {
                 role: "readWrite",
-                db: "sundae"
+                db: $DB_NAME
             }
         ]
     }
