@@ -9,4 +9,4 @@ db.createUser(
                 db: process.en.DB_NAME
             }
         ]
-    }
+    })
