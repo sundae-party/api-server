@@ -1,12 +1,12 @@
-db = db.getSiblingDB(process.env.DB_NAME)
+db = db.getSiblingDB("sundae")
 db.createUser(
     {
-        user: process.env.DB_USER,
-        pwd: process.env.DB_PASS,
+        user: "sundae",
+        pwd: "pass",
         roles: [
             {
                 role: "readWrite",
-                db: process.env.DB_NAME
+                db: "sundae"
             }
         ]
     })
