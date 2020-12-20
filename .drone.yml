@@ -16,7 +16,7 @@ steps:
   - name: get-mongodb-version
     image: mongo:4
     commands:
-      - sleep 5
+      - sleep 15
       - date
       - mongo --host mongo --eval "db.version()"
 
