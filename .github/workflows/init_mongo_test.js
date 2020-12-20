@@ -1,3 +1,4 @@
+db = db.getSiblingDB('sundae')
 db.createUser(
     {
         user: "sundae",
