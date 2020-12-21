@@ -20,11 +20,11 @@ type IntegrationHandlerClient interface {
 	Create(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error)
 	Get(ctx context.Context, in *IntegrationServerRequest, opts ...grpc.CallOption) (*Integration, error)
 	Delete(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error)
-	SetState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*IntegrationState, error)
-	CallService(ctx context.Context, in *CallServiceRequest, opts ...grpc.CallOption) (*CallServiceResponse, error)
+	SetState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*IntegrationState, error)
+	CallService(ctx context.Context, in *CallIntegrationServiceRequest, opts ...grpc.CallOption) (*CallIntegrationServiceResponse, error)
 	Connect(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_ConnectClient, error)
-	StorePut(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreRequest, error)
-	StoreGet(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreRequest, error)
+	StorePut(ctx context.Context, in *IntegrationStoreRequest, opts ...grpc.CallOption) (*IntegrationStoreRequest, error)
+	StoreGet(ctx context.Context, in *IntegrationStoreRequest, opts ...grpc.CallOption) (*IntegrationStoreRequest, error)
 }
 
 type integrationHandlerClient struct {
@@ -62,7 +62,7 @@ func (c *integrationHandlerClient) Delete(ctx context.Context, in *Integration, 
 	return out, nil
 }
 
-func (c *integrationHandlerClient) SetState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*IntegrationState, error) {
+func (c *integrationHandlerClient) SetState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*IntegrationState, error) {
 	out := new(IntegrationState)
 	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/SetState", in, out, opts...)
 	if err != nil {
@@ -71,8 +71,8 @@ func (c *integrationHandlerClient) SetState(ctx context.Context, in *SetStateReq
 	return out, nil
 }
 
-func (c *integrationHandlerClient) CallService(ctx context.Context, in *CallServiceRequest, opts ...grpc.CallOption) (*CallServiceResponse, error) {
-	out := new(CallServiceResponse)
+func (c *integrationHandlerClient) CallService(ctx context.Context, in *CallIntegrationServiceRequest, opts ...grpc.CallOption) (*CallIntegrationServiceResponse, error) {
+	out := new(CallIntegrationServiceResponse)
 	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/CallService", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (c *integrationHandlerClient) Connect(ctx context.Context, in *Integration,
 }
 
 type IntegrationHandler_ConnectClient interface {
-	Recv() (*CallServiceRequest, error)
+	Recv() (*CallIntegrationServiceRequest, error)
 	grpc.ClientStream
 }
 
@@ -104,16 +104,16 @@ type integrationHandlerConnectClient struct {
 	grpc.ClientStream
 }
 
-func (x *integrationHandlerConnectClient) Recv() (*CallServiceRequest, error) {
-	m := new(CallServiceRequest)
+func (x *integrationHandlerConnectClient) Recv() (*CallIntegrationServiceRequest, error) {
+	m := new(CallIntegrationServiceRequest)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *integrationHandlerClient) StorePut(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreRequest, error) {
-	out := new(StoreRequest)
+func (c *integrationHandlerClient) StorePut(ctx context.Context, in *IntegrationStoreRequest, opts ...grpc.CallOption) (*IntegrationStoreRequest, error) {
+	out := new(IntegrationStoreRequest)
 	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/StorePut", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -121,8 +121,8 @@ func (c *integrationHandlerClient) StorePut(ctx context.Context, in *StoreReques
 	return out, nil
 }
 
-func (c *integrationHandlerClient) StoreGet(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreRequest, error) {
-	out := new(StoreRequest)
+func (c *integrationHandlerClient) StoreGet(ctx context.Context, in *IntegrationStoreRequest, opts ...grpc.CallOption) (*IntegrationStoreRequest, error) {
+	out := new(IntegrationStoreRequest)
 	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/StoreGet", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -137,11 +137,11 @@ type IntegrationHandlerServer interface {
 	Create(context.Context, *Integration) (*Integration, error)
 	Get(context.Context, *IntegrationServerRequest) (*Integration, error)
 	Delete(context.Context, *Integration) (*Integration, error)
-	SetState(context.Context, *SetStateRequest) (*IntegrationState, error)
-	CallService(context.Context, *CallServiceRequest) (*CallServiceResponse, error)
+	SetState(context.Context, *SetIntegrationStateRequest) (*IntegrationState, error)
+	CallService(context.Context, *CallIntegrationServiceRequest) (*CallIntegrationServiceResponse, error)
 	Connect(*Integration, IntegrationHandler_ConnectServer) error
-	StorePut(context.Context, *StoreRequest) (*StoreRequest, error)
-	StoreGet(context.Context, *StoreRequest) (*StoreRequest, error)
+	StorePut(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error)
+	StoreGet(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error)
 	mustEmbedUnimplementedIntegrationHandlerServer()
 }
 
@@ -158,19 +158,19 @@ func (UnimplementedIntegrationHandlerServer) Get(context.Context, *IntegrationSe
 func (UnimplementedIntegrationHandlerServer) Delete(context.Context, *Integration) (*Integration, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) SetState(context.Context, *SetStateRequest) (*IntegrationState, error) {
+func (UnimplementedIntegrationHandlerServer) SetState(context.Context, *SetIntegrationStateRequest) (*IntegrationState, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) CallService(context.Context, *CallServiceRequest) (*CallServiceResponse, error) {
+func (UnimplementedIntegrationHandlerServer) CallService(context.Context, *CallIntegrationServiceRequest) (*CallIntegrationServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CallService not implemented")
 }
 func (UnimplementedIntegrationHandlerServer) Connect(*Integration, IntegrationHandler_ConnectServer) error {
 	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) StorePut(context.Context, *StoreRequest) (*StoreRequest, error) {
+func (UnimplementedIntegrationHandlerServer) StorePut(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StorePut not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) StoreGet(context.Context, *StoreRequest) (*StoreRequest, error) {
+func (UnimplementedIntegrationHandlerServer) StoreGet(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StoreGet not implemented")
 }
 func (UnimplementedIntegrationHandlerServer) mustEmbedUnimplementedIntegrationHandlerServer() {}
@@ -241,7 +241,7 @@ func _IntegrationHandler_Delete_Handler(srv interface{}, ctx context.Context, de
 }
 
 func _IntegrationHandler_SetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetStateRequest)
+	in := new(SetIntegrationStateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -253,13 +253,13 @@ func _IntegrationHandler_SetState_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/types.IntegrationHandler/SetState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntegrationHandlerServer).SetState(ctx, req.(*SetStateRequest))
+		return srv.(IntegrationHandlerServer).SetState(ctx, req.(*SetIntegrationStateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _IntegrationHandler_CallService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CallServiceRequest)
+	in := new(CallIntegrationServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func _IntegrationHandler_CallService_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/types.IntegrationHandler/CallService",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntegrationHandlerServer).CallService(ctx, req.(*CallServiceRequest))
+		return srv.(IntegrationHandlerServer).CallService(ctx, req.(*CallIntegrationServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -285,7 +285,7 @@ func _IntegrationHandler_Connect_Handler(srv interface{}, stream grpc.ServerStre
 }
 
 type IntegrationHandler_ConnectServer interface {
-	Send(*CallServiceRequest) error
+	Send(*CallIntegrationServiceRequest) error
 	grpc.ServerStream
 }
 
@@ -293,12 +293,12 @@ type integrationHandlerConnectServer struct {
 	grpc.ServerStream
 }
 
-func (x *integrationHandlerConnectServer) Send(m *CallServiceRequest) error {
+func (x *integrationHandlerConnectServer) Send(m *CallIntegrationServiceRequest) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _IntegrationHandler_StorePut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StoreRequest)
+	in := new(IntegrationStoreRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -310,13 +310,13 @@ func _IntegrationHandler_StorePut_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/types.IntegrationHandler/StorePut",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntegrationHandlerServer).StorePut(ctx, req.(*StoreRequest))
+		return srv.(IntegrationHandlerServer).StorePut(ctx, req.(*IntegrationStoreRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _IntegrationHandler_StoreGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StoreRequest)
+	in := new(IntegrationStoreRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -328,7 +328,7 @@ func _IntegrationHandler_StoreGet_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/types.IntegrationHandler/StoreGet",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntegrationHandlerServer).StoreGet(ctx, req.(*StoreRequest))
+		return srv.(IntegrationHandlerServer).StoreGet(ctx, req.(*IntegrationStoreRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

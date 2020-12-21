@@ -8,14 +8,14 @@ service IntegrationHandler {
     rpc Create (Integration) returns (Integration);
     rpc Get (IntegrationServerRequest) returns (Integration);
     rpc Delete (Integration) returns (Integration);
-    rpc SetState (SetStateRequest) returns (IntegrationState);
-    rpc CallService (CallServiceRequest) returns (CallServiceResponse);
-    rpc Connect (Integration) returns (stream CallServiceRequest);
-    rpc StorePut (StoreRequest) returns (StoreRequest);
-    rpc StoreGet (StoreRequest) returns (StoreRequest);
+    rpc SetState (SetIntegrationStateRequest) returns (IntegrationState);
+    rpc CallService (CallIntegrationServiceRequest) returns (CallIntegrationServiceResponse);
+    rpc Connect (Integration) returns (stream CallIntegrationServiceRequest);
+    rpc StorePut (IntegrationStoreRequest) returns (IntegrationStoreRequest);
+    rpc StoreGet (IntegrationStoreRequest) returns (IntegrationStoreRequest);
 }
 
-message StoreRequest {
+message IntegrationStoreRequest {
     string integration_name = 1;
     string key = 2;
     string value = 3;
@@ -25,17 +25,17 @@ message IntegrationServerRequest {
     string integration_name = 1;
 }
 
-message CallServiceRequest {
+message CallIntegrationServiceRequest {
     string integration_name = 1;
-    Service service = 5;
+    IntegrationService service = 5;
 }
 
-message CallServiceResponse {
+message CallIntegrationServiceResponse {
     bool success = 1;
     string error = 2;
 }
 
-message SetStateRequest {
+message SetIntegrationStateRequest {
     string integration_name = 1;
     IntegrationState state = 5;
 }
@@ -46,15 +46,14 @@ message Integration {
     string version = 3;
     string url = 4;
     IntegrationState state = 5;
-    string store_path = 6;
-    repeated Service services = 7;
+    repeated IntegrationService services = 6;
 }
 
 message IntegrationState {
 	bool connected = 1;
 }
 
-message Service {
+message IntegrationService {
     string name = 1;
     string data = 2;
 }

@@ -1,20 +1,19 @@
 package light
 
 import (
-	"sundae-party/api-server/pkg/apis/core/integration"
+	"sundae-party/api-server/pkg/apis/core/types"
 )
 
 var (
-	mockIntegration = &integration.Integration{
+	mockIntegration = &types.Integration{
 		Name:          "Hue",
 		Documentation: "https://sundae/doc/hue",
 		Version:       "v1.0.0",
 		Url:           "https://github.com/sundae-party/integration/hue",
-		State: &integration.State{
+		State: &types.IntegrationState{
 			Connected: true,
 		},
-		StorePath: "/integration/store",
-		Services: []*integration.Service{
+		Services: []*types.IntegrationService{
 			{
 				Name: "refresh_entities",
 				Data: "",
@@ -22,9 +21,9 @@ var (
 		},
 	}
 
-	mockState = &State{
+	mockState = &types.LightState{
 		Brightness: 33,
-		ColorRGB: &ColorRGB{
+		ColorRGB: &types.LightColorRGB{
 			Red:   125,
 			Blue:  135,
 			Green: 120,
@@ -33,7 +32,7 @@ var (
 		Kelvin: 2500,
 	}
 
-	mockLight = &Light{
+	mockLight = &types.Light{
 		Name:          "light",
 		DisplayedName: "Desk light",
 		Integration:   mockIntegration,

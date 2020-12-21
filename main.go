@@ -43,7 +43,7 @@ func main() {
 	// Create Integration handler object
 	ih := &integration.IntegrationHandler{
 		Store:        mongoStore,
-		ServiceEvent: make(chan *types.CallServiceRequest),
+		ServiceEvent: make(chan *types.CallIntegrationServiceRequest),
 	}
 
 	// Add handlers to the server

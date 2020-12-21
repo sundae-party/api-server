@@ -44,8 +44,7 @@ func TestPutIntegration(t *testing.T) {
 		State: &types.IntegrationState{
 			Connected: true,
 		},
-		StorePath: "/integration/store",
-		Services: []*types.Service{
+		Services: []*types.IntegrationService{
 			{
 				Name: "refresh_entities",
 				Data: "",
@@ -94,8 +93,7 @@ func TestGetIntegration(t *testing.T) {
 		State: &types.IntegrationState{
 			Connected: true,
 		},
-		StorePath: "/integration/store",
-		Services: []*types.Service{
+		Services: []*types.IntegrationService{
 			{
 				Name: "refresh_entities",
 				Data: "",
@@ -143,8 +141,7 @@ func TestDeleteIntegration(t *testing.T) {
 		State: &types.IntegrationState{
 			Connected: true,
 		},
-		StorePath: "/integration/store",
-		Services: []*types.Service{
+		Services: []*types.IntegrationService{
 			{
 				Name: "refresh_entities",
 				Data: "",

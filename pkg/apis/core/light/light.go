@@ -6,26 +6,26 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 
-	"sundae-party/api-server/pkg/apis/core/integration"
+	"sundae-party/api-server/pkg/apis/core/types"
 )
 
 type LightHandler struct {
-	UnimplementedLightHandlerServer
+	types.UnimplementedLightHandlerServer
 	//	Store storage.Store
 }
 
-func (lh *LightHandler) SetDesiredState(context.Context, *Light) (*Light, error) {
+func (lh *LightHandler) SetDesiredState(context.Context, *types.Light) (*types.Light, error) {
 	// Update light desiredState in ETCD
 	// Send request to concerned Integration
 	// Bradcast to the websocket clients
 	return nil, status.Errorf(codes.Unimplemented, "method SetDesiredState not implemented")
 }
-func (lh *LightHandler) SetState(context.Context, *Light) (*Light, error) {
+func (lh *LightHandler) SetState(context.Context, *types.Light) (*types.Light, error) {
 	// Update light state in ETCD
 	// Bradcast to the websocket clients
 	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
 }
-func (lh *LightHandler) Create(c context.Context, l *Light) (*Light, error) {
+func (lh *LightHandler) Create(c context.Context, l *types.Light) (*types.Light, error) {
 	// Add light in ETCD
 	// json, err := json.Marshal(l)
 	// if err != nil {
@@ -36,11 +36,11 @@ func (lh *LightHandler) Create(c context.Context, l *Light) (*Light, error) {
 	return l, nil
 	//return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (lh *LightHandler) GetByDevice(*integration.Integration, LightHandler_GetByDeviceServer) error {
+func (lh *LightHandler) GetByDevice(*types.Integration, types.LightHandler_GetByDeviceServer) error {
 	// Get Light from ETCD / ? Integration ? filtered by a
 	return status.Errorf(codes.Unimplemented, "method GetByDevice not implemented")
 }
-func (lh *LightHandler) GetByIntegration(i *integration.Integration, h LightHandler_GetByIntegrationServer) error {
+func (lh *LightHandler) GetByIntegration(i *types.Integration, h types.LightHandler_GetByIntegrationServer) error {
 	//return status.Errorf(codes.Unimplemented, "method GetByIntegration not implemented")
 	// lights := lh.Store.GetByIntegration(i.Name)
 	// for _, jsonLight := range lights {

@@ -12,7 +12,7 @@ import (
 type IntegrationHandler struct {
 	types.UnimplementedIntegrationHandlerServer
 	Store        storage.Store
-	ServiceEvent chan *types.CallServiceRequest
+	ServiceEvent chan *types.CallIntegrationServiceRequest
 }
 
 func (ih IntegrationHandler) Create(ctx context.Context, i *types.Integration) (*types.Integration, error) {
@@ -36,7 +36,7 @@ func (ih IntegrationHandler) Delete(ctx context.Context, id *types.Integration) 
 	}
 	return resp, nil
 }
-func (ih IntegrationHandler) SetState(ctx context.Context, sr *types.SetStateRequest) (*types.IntegrationState, error) {
+func (ih IntegrationHandler) SetState(ctx context.Context, sr *types.SetIntegrationStateRequest) (*types.IntegrationState, error) {
 	i, err := ih.Store.GetIntegration(ctx, sr.IntegrationName)
 	if err != nil {
 		return nil, err
@@ -50,10 +50,10 @@ func (ih IntegrationHandler) SetState(ctx context.Context, sr *types.SetStateReq
 }
 
 // TODO: how to contact desired integration
-func (ih IntegrationHandler) CallService(ctx context.Context, svc *types.CallServiceRequest) (*types.CallServiceResponse, error) {
+func (ih IntegrationHandler) CallService(ctx context.Context, svc *types.CallIntegrationServiceRequest) (*types.CallIntegrationServiceResponse, error) {
 	ih.ServiceEvent <- svc
 	// TODO: how to get Call service response status
-	return &types.CallServiceResponse{Success: true}, nil
+	return &types.CallIntegrationServiceResponse{Success: true}, nil
 	// svc.IntegrationName
 	// svc.Service.Name
 	// svc.Service.Data
@@ -78,11 +78,11 @@ func (ih IntegrationHandler) Connect(i *types.Integration, stream types.Integrat
 }
 
 // TODO
-func (ih IntegrationHandler) StorePut(ctx context.Context, req *types.StoreRequest) (*types.StoreRequest, error) {
+func (ih IntegrationHandler) StorePut(ctx context.Context, req *types.IntegrationStoreRequest) (*types.IntegrationStoreRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StorePut not implemented")
 }
 
 // TODO
-func (ih IntegrationHandler) StoreGet(ctx context.Context, req *types.StoreRequest) (*types.StoreRequest, error) {
+func (ih IntegrationHandler) StoreGet(ctx context.Context, req *types.IntegrationStoreRequest) (*types.IntegrationStoreRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StoreGet not implemented")
 }
