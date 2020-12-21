@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"sundae-party/api-server/pkg/apis/core/integration"
+	"sundae-party/api-server/pkg/apis/core/types"
 
 	mongo_store "sundae-party/api-server/pkg/storage/mongo"
 
@@ -19,9 +19,9 @@ var availableStoreType = map[string]string{
 }
 
 type Store interface {
-	PutIntegration(context.Context, *integration.Integration) (*integration.Integration, error)
-	GetIntegration(context.Context, string) (*integration.Integration, error)
-	DeleteIntegration(context.Context, *integration.Integration) (string, error)
+	PutIntegration(context.Context, *types.Integration) (*types.Integration, error)
+	GetIntegration(context.Context, string) (*types.Integration, error)
+	DeleteIntegration(context.Context, *types.Integration) (*types.Integration, error)
 }
 
 type StoreOption struct {

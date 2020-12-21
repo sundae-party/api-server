@@ -2,7 +2,7 @@ package storage
 
 import (
 	"context"
-	"sundae-party/api-server/pkg/apis/core/integration"
+	"sundae-party/api-server/pkg/apis/core/types"
 	"testing"
 )
 
@@ -36,16 +36,16 @@ func TestPutIntegration(t *testing.T) {
 		DbName:   "sundae",
 	}
 
-	iOk := &integration.Integration{
+	iOk := &types.Integration{
 		Name:          "Hue",
 		Documentation: "https://sundae/doc/hue",
 		Version:       "v1.0.0",
 		Url:           "https://github.com/sundae-party/integration/hue",
-		State: &integration.State{
+		State: &types.IntegrationState{
 			Connected: true,
 		},
 		StorePath: "/integration/store",
-		Services: []*integration.Service{
+		Services: []*types.Service{
 			{
 				Name: "refresh_entities",
 				Data: "",
@@ -86,16 +86,16 @@ func TestGetIntegration(t *testing.T) {
 		DbName:   "sundae",
 	}
 
-	iOk := &integration.Integration{
+	iOk := &types.Integration{
 		Name:          "Hue",
 		Documentation: "https://sundae/doc/hue",
 		Version:       "v1.0.0",
 		Url:           "https://github.com/sundae-party/integration/hue",
-		State: &integration.State{
+		State: &types.IntegrationState{
 			Connected: true,
 		},
 		StorePath: "/integration/store",
-		Services: []*integration.Service{
+		Services: []*types.Service{
 			{
 				Name: "refresh_entities",
 				Data: "",
@@ -135,16 +135,16 @@ func TestDeleteIntegration(t *testing.T) {
 		DbName:   "sundae",
 	}
 
-	iOk := &integration.Integration{
+	iOk := &types.Integration{
 		Name:          "Hue",
 		Documentation: "https://sundae/doc/hue",
 		Version:       "v1.0.0",
 		Url:           "https://github.com/sundae-party/integration/hue",
-		State: &integration.State{
+		State: &types.IntegrationState{
 			Connected: true,
 		},
 		StorePath: "/integration/store",
-		Services: []*integration.Service{
+		Services: []*types.Service{
 			{
 				Name: "refresh_entities",
 				Data: "",

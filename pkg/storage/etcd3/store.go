@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	//"go.etcd.io/etcd/clientv3"
-	"sundae-party/api-server/pkg/apis/core/integration"
+	"sundae-party/api-server/pkg/apis/core/types"
 )
 
 type EtcdStore struct {
@@ -29,12 +29,12 @@ func NewStore() *EtcdStore {
 }
 
 // TODO ETCD functions implementing Store interface
-func PutIntegration(ctx context.Context, newIntegration *integration.Integration) (*integration.Integration, error) {
-	return &integration.Integration{}, nil
+func PutIntegration(ctx context.Context, newIntegration *types.Integration) (*types.Integration, error) {
+	return &types.Integration{}, nil
 }
-func GetIntegration(ctx context.Context, name string) (*integration.Integration, error) {
-	return &integration.Integration{}, nil
+func GetIntegration(ctx context.Context, name string) (*types.Integration, error) {
+	return &types.Integration{}, nil
 }
-func DeleteIntegration(ctx context.Context, deleteIntegration *integration.Integration) (string, error) {
+func DeleteIntegration(ctx context.Context, deleteIntegration *types.Integration) (string, error) {
 	return fmt.Sprintf("%s deleted.", "TODO"), nil
 }

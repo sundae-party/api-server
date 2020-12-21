@@ -1,25 +1,36 @@
 # Build
 
-## protoc build integration
+## Build all the api-server
 
 ```bash
-protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. -go-grpc_opt=paths=source_relative --proto_path=. integration.proto
-```
-
-## protoc build light
-
-```bash
-protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. -go-grpc_opt=paths=source_relative --proto_path=. --proto_path=/go/src/api_server/pkg/apis/core/integration light.proto
+make
 ```
 
 ## Test
 
+The default docker bridge network never supported service discovery through a built in DNS.
+Create new custom network to enable that, or address db container with container ip ...
+
+```docker
+docker network create sundae
+```
+
 Create new mongo for the tests:
 
 ```docker
-docker run --rm -it --name mongo-test -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=pwd -e MONGO_INITDB_DATABASE=sundae -e MONGO_INITDB_USERNAME=sundae -e MONGO_INITDB_PASSWORD=pass mongo
+docker run \
+    --rm -it --name mongo-test \
+    --network sundae \
+    -p 27017:27017 \
+    -e MONGO_INITDB_ROOT_USERNAME=admin \
+    -e MONGO_INITDB_ROOT_PASSWORD=pwd \
+    -e MONGO_INITDB_DATABASE=sundae \
+    -v $PWD/init_mongo_test.js:/docker-entrypoint-initdb.d/init_mongo_test.js \
+    mongo
 ```
 
+Run the tests, if custom network was created for db container add the dev container in this same docker network.
+
 ```bash
-go test -test.v ./...
+make go_test
 ```

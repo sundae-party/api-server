@@ -3,15 +3,14 @@ package mongo
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
+
+	"sundae-party/api-server/pkg/apis/core/types"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"go.mongodb.org/mongo-driver/bson"
-
-	"sundae-party/api-server/pkg/apis/core/integration"
 )
 
 type MongoStore struct {
@@ -35,6 +34,12 @@ func NewStore(c context.Context, DbName string, hosts []string, creds options.Cr
 		return nil, err
 	}
 
+	// Check client connexion
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	// Select the database
 	db := client.Database(DbName)
 
@@ -47,7 +52,7 @@ func NewStore(c context.Context, DbName string, hosts []string, creds options.Cr
 }
 
 // PutIntegration create or update an integration in mongo store.
-func (ms MongoStore) PutIntegration(ctx context.Context, newIntegration *integration.Integration) (*integration.Integration, error) {
+func (ms MongoStore) PutIntegration(ctx context.Context, newIntegration *types.Integration) (*types.Integration, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
@@ -67,14 +72,14 @@ func (ms MongoStore) PutIntegration(ctx context.Context, newIntegration *integra
 	if res.Err() != nil {
 		return nil, res.Err()
 	}
-	updated := &integration.Integration{}
+	updated := &types.Integration{}
 	res.Decode(updated)
 	return updated, nil
 }
 
 // GetIntegration find unique integration with given name and return it.
 // If more one integration is find with this name an error is returned
-func (ms MongoStore) GetIntegration(ctx context.Context, name string) (*integration.Integration, error) {
+func (ms MongoStore) GetIntegration(ctx context.Context, name string) (*types.Integration, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
@@ -88,7 +93,7 @@ func (ms MongoStore) GetIntegration(ctx context.Context, name string) (*integrat
 		return nil, err
 	}
 
-	var result []integration.Integration
+	var result []types.Integration
 	err = cursor.All(c, &result)
 	if err != nil {
 		return nil, err
@@ -103,7 +108,7 @@ func (ms MongoStore) GetIntegration(ctx context.Context, name string) (*integrat
 	return &result[0], nil
 }
 
-func (ms MongoStore) DeleteIntegration(ctx context.Context, deleteIntegration *integration.Integration) (string, error) {
+func (ms MongoStore) DeleteIntegration(ctx context.Context, deleteIntegration *types.Integration) (*types.Integration, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
@@ -114,10 +119,10 @@ func (ms MongoStore) DeleteIntegration(ctx context.Context, deleteIntegration *i
 
 	res := collection.FindOneAndDelete(c, filter)
 	if res.Err() != nil {
-		return "", res.Err()
+		return nil, res.Err()
 	}
-	deleted := &integration.Integration{}
+	deleted := &types.Integration{}
 	res.Decode(deleted)
 
-	return fmt.Sprintf("%s deleted.", deleted.Name), nil
+	return deleted, nil
 }
