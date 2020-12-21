@@ -105,6 +105,14 @@ func Serve(srvConf ServerConfig) {
 	// Server rest API routes
 	ServeAPI(router)
 
+	// Create and start ws
+	hub := newHub()
+	go hub.run()
+	// Serve ws
+	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(hub, w, r)
+	})
+
 	// Serve single page application
 	spa := spaHandler{
 		staticPath: "build",
