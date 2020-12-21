@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+
+	"sundae-party/api-server/pkg/storage"
 )
 
 type srvMode int64
@@ -98,7 +100,7 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Serve create new web server and start to listen
-func Serve(srvConf ServerConfig) {
+func Serve(srvConf ServerConfig, store *storage.Store) {
 	srvCount := 1
 	router := mux.NewRouter()
 
@@ -106,7 +108,7 @@ func Serve(srvConf ServerConfig) {
 	ServeAPI(router)
 
 	// Create and start ws
-	hub := newHub()
+	hub := newHub(store)
 	go hub.run()
 	// Serve ws
 	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {

@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+
+	"sundae-party/api-server/pkg/storage"
 )
 
 const (
@@ -42,6 +44,9 @@ type Hub struct {
 
 	// Unregister requests from clients.
 	unregister chan *Client
+
+	// Store to watch db event
+	store *storage.Store
 }
 
 var (
@@ -84,12 +89,13 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 }
 
 // Create new hub object
-func newHub() *Hub {
+func newHub(store *storage.Store) *Hub {
 	return &Hub{
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
+		store:      store,
 	}
 }
 

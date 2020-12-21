@@ -65,5 +65,5 @@ func main() {
 		EnableMTLS:          true,
 		ClientCAsPath:       []string{"ssl/ca.pem"},
 	}
-	server.Serve(tlsConf)
+	server.Serve(tlsConf, mongoStore)
 }
