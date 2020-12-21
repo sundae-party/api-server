@@ -105,7 +105,7 @@ func Serve(srvConf ServerConfig, store *storage.Store) {
 	router := mux.NewRouter()
 
 	// Server rest API routes
-	ServeAPI(router)
+	ServeAPI(router, *store)
 
 	// Create and start ws
 	hub := newHub(store)

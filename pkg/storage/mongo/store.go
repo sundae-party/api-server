@@ -5,8 +5,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"sundae-party/api-server/pkg/apis/core/types"
@@ -55,12 +53,12 @@ func NewStore(c context.Context, DbName string, hosts []string, creds options.Cr
 		Event:    make(chan string),
 		Exit:     make(chan os.Signal),
 	}
-	signal.Notify(ms.Exit, syscall.SIGINT, syscall.SIGTERM)
+	// signal.Notify(ms.Exit, syscall.SIGINT, syscall.SIGTERM)
 
-	err = WatchEvent(c, ms)
-	if err != nil {
-		return nil, err
-	}
+	// err = WatchEvent(c, ms)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return ms, nil
 }
