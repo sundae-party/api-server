@@ -3,6 +3,10 @@ package mongo
 import (
 	"context"
 	"errors"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"sundae-party/api-server/pkg/apis/core/types"
@@ -16,6 +20,8 @@ import (
 type MongoStore struct {
 	Client   *mongo.Client
 	DataBase *mongo.Database
+	Event    chan string
+	Exit     chan os.Signal
 }
 
 func NewStore(c context.Context, DbName string, hosts []string, creds options.Credential) (*MongoStore, error) {
@@ -46,9 +52,39 @@ func NewStore(c context.Context, DbName string, hosts []string, creds options.Cr
 	ms := &MongoStore{
 		Client:   client,
 		DataBase: db,
+		Event:    make(chan string),
+		Exit:     make(chan os.Signal),
+	}
+	signal.Notify(ms.Exit, syscall.SIGINT, syscall.SIGTERM)
+
+	err = WatchEvent(c, ms)
+	if err != nil {
+		return nil, err
 	}
 
 	return ms, nil
+}
+
+// Start mongo watch event on collections
+func WatchEvent(ctx context.Context, s *MongoStore) error {
+	csIntegration, err := s.DataBase.Collection("Integration").Watch(ctx, mongo.Pipeline{}, options.ChangeStream().SetFullDocument(options.UpdateLookup))
+	if err != nil {
+		return err
+	}
+	c, cancel := context.WithCancel(ctx)
+	go func() {
+		<-s.Exit
+		log.Print("Stop prog: stop mongo watch")
+		cancel()
+	}()
+	// Integration loop event
+	go func() {
+		for csIntegration.Next(c) {
+			re := csIntegration.Current.Index(1)
+			s.Event <- re.Value().String()
+		}
+	}()
+	return nil
 }
 
 // PutIntegration create or update an integration in mongo store.
