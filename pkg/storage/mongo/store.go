@@ -39,12 +39,6 @@ func NewStore(c context.Context, DbName string, uri string, creds options.Creden
 		return nil, err
 	}
 
-	// Check client connexion
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
 	// Select the database
 	db := client.Database(DbName)
 
@@ -70,6 +64,7 @@ func WatchEvent(ctx context.Context, s *MongoStore) error {
 	if err != nil {
 		return err
 	}
+	// TODO quit with cancel
 	c, cancel := context.WithCancel(ctx)
 	go func() {
 		<-s.Exit
@@ -80,12 +75,15 @@ func WatchEvent(ctx context.Context, s *MongoStore) error {
 	log.Println("Start watch")
 	go func() {
 		for csIntegration.Next(c) {
-			// re := csIntegration.Current.Index(1)
-			log.Println(csIntegration.Current.Elements())
-			// s.Event <- re.Value().String()
+			s.Event <- csIntegration.Current.String()
+			log.Println(csIntegration.Current.String())
 		}
 	}()
 	return nil
+}
+
+func (ms MongoStore) GetEvent() chan string {
+	return ms.Event
 }
 
 // PutIntegration create or update an integration in mongo store.

@@ -46,7 +46,7 @@ type Hub struct {
 	unregister chan *Client
 
 	// Store to watch db event
-	store *storage.Store
+	store storage.Store
 }
 
 var (
@@ -89,7 +89,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 }
 
 // Create new hub object
-func newHub(store *storage.Store) *Hub {
+func newHub(store storage.Store) *Hub {
 	return &Hub{
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
@@ -116,6 +116,15 @@ func (h *Hub) run() {
 			for client := range h.clients {
 				select {
 				case client.send <- message:
+				default:
+					close(client.send)
+					delete(h.clients, client)
+				}
+			}
+		case event := <-h.store.GetEvent():
+			for client := range h.clients {
+				select {
+				case client.send <- []byte(event):
 				default:
 					close(client.send)
 					delete(h.clients, client)

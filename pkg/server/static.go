@@ -108,7 +108,7 @@ func Serve(srvConf ServerConfig, store *storage.Store) {
 	ServeAPI(router, *store)
 
 	// Create and start ws
-	hub := newHub(store)
+	hub := newHub(*store)
 	go hub.run()
 	// Serve ws
 	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
