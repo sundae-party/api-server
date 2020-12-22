@@ -1,5 +1,8 @@
 rs.initiate()
-db = db.getSiblingDB("sundae")
+
+sleep(2000)
+
+db = db.getSiblingDB("sundae");
 db.createUser(
     {
         user: "sundae",
@@ -10,4 +13,4 @@ db.createUser(
                 db: "sundae"
             }
         ]
-    })
+    });
