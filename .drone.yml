@@ -5,6 +5,7 @@ name: test
 services:
   - name: mongo
     image: mongo:4
+    hostname: mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME:
         from_secret: db_admin_user
