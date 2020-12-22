@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"strings"
 
 	"sundae-party/api-server/pkg/apis/core/types"
 
@@ -27,10 +28,8 @@ type Store interface {
 type StoreOption struct {
 	// Type of store mongo | etcd3
 	Type string
-	// Endpoints list of db, for mongo only first item will be used
+	// Endpoints list of db in style ADDR:PORT
 	Address []string
-	// Port used to connect to the db
-	Port string
 	// User used with authentication procedure user:password
 	User string
 	// Password used with authentication procedure user:password
@@ -39,19 +38,26 @@ type StoreOption struct {
 	TLSConfig *tls.Config
 	// DbName to use, availbale for mongo only
 	DbName string
+	// RsName to connect in replicat set mode, availbale for mongo only
+	RsName string
 }
 
 func NewStore(ctx context.Context, ops *StoreOption) (Store, error) {
 
 	// If store type is mongo
 	if ops.Type == availableStoreType["mongo"] {
+		// Check mongo ops
 		err := checkMongoOptions(ops)
 		if err != nil {
 			return nil, err
 		}
-		// TODO get rs name from ops, update address format ADDR:PORT
-		uri := fmt.Sprintf("mongodb://%s:%s/?replicaSet=rs0", ops.Address, ops.Port)
-		creds := options.Credential{AuthSource: "sundae", Username: ops.User, Password: ops.Password}
+		// Build mongo uri
+		uri, err := buildMongoUri(ops)
+		if err != nil {
+			return nil, err
+		}
+		// Build creds ops
+		creds := options.Credential{AuthSource: ops.DbName, Username: ops.User, Password: ops.Password}
 		// Create new MongoStore object with provided opetions
 		ms, err := mongo_store.NewStore(ctx, ops.DbName, uri, creds)
 		if err != nil {
@@ -69,6 +75,29 @@ func NewStore(ctx context.Context, ops *StoreOption) (Store, error) {
 	return nil, errors.New("Store type unavailable.")
 }
 
+func buildMongoUri(ops *StoreOption) (string, error) {
+	var uri strings.Builder
+	_, err := uri.WriteString("mongodb://")
+	if err != nil {
+		return "", err
+	}
+	for _, addr := range ops.Address {
+		_, err = uri.WriteString(addr)
+		if err != nil {
+			return "", err
+		}
+	}
+	_, err = uri.WriteString("/?replicaSet=")
+	if err != nil {
+		return "", err
+	}
+	_, err = uri.WriteString(ops.RsName)
+	if err != nil {
+		return "", err
+	}
+	return uri.String(), nil
+}
+
 func checkMongoOptions(ops *StoreOption) error {
 	// Check if db name provided
 	if ops.DbName == "" {
@@ -78,11 +107,6 @@ func checkMongoOptions(ops *StoreOption) error {
 	// Check endpoint address
 	if len(ops.Address) == 0 || ops.Address[0] == "" {
 		return errors.New("No mongo address provided.")
-	}
-
-	// Check endpoint port
-	if ops.Port == "" {
-		return errors.New("No mongo port provided.")
 	}
 
 	// Check if user and password or x509 provided

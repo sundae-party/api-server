@@ -17,11 +17,11 @@ func main() {
 	// Create new mongo store
 	mongo := &storage.StoreOption{
 		Type:     "mongo",
-		Address:  []string{"172.17.0.3"},
-		Port:     "27017",
+		Address:  []string{"172.17.0.3:27017"},
 		User:     "sundae",
 		Password: "pass",
 		DbName:   "sundae",
+		RsName:   "rs0",
 	}
 	ctx := context.Background()
 	mongoStore, err := storage.NewStore(ctx, mongo)
