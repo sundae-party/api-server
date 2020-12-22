@@ -22,16 +22,17 @@ type MongoStore struct {
 	Exit     chan os.Signal
 }
 
-func NewStore(c context.Context, DbName string, hosts []string, creds options.Credential) (*MongoStore, error) {
+func NewStore(c context.Context, DbName string, uri string, creds options.Credential) (*MongoStore, error) {
 
 	// Create new mongo client with ops
-	client, err := mongo.NewClient(options.Client().SetHosts(hosts).SetAuth(creds))
+	client, err := mongo.NewClient(options.Client().ApplyURI(uri).SetAuth(creds))
 	if err != nil {
 		return nil, err
 	}
 
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 	defer cancel()
+
 	// Connect client to mongo instance
 	err = client.Connect(ctx)
 	if err != nil {
@@ -55,17 +56,17 @@ func NewStore(c context.Context, DbName string, hosts []string, creds options.Cr
 	}
 	// signal.Notify(ms.Exit, syscall.SIGINT, syscall.SIGTERM)
 
-	// err = WatchEvent(c, ms)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	err = WatchEvent(c, ms)
+	if err != nil {
+		return nil, err
+	}
 
 	return ms, nil
 }
 
 // Start mongo watch event on collections
 func WatchEvent(ctx context.Context, s *MongoStore) error {
-	csIntegration, err := s.DataBase.Collection("Integration").Watch(ctx, mongo.Pipeline{}, options.ChangeStream().SetFullDocument(options.UpdateLookup))
+	csIntegration, err := s.DataBase.Collection("integrations").Watch(ctx, mongo.Pipeline{}, options.ChangeStream().SetFullDocument(options.UpdateLookup))
 	if err != nil {
 		return err
 	}
@@ -76,10 +77,12 @@ func WatchEvent(ctx context.Context, s *MongoStore) error {
 		cancel()
 	}()
 	// Integration loop event
+	log.Println("Start watch")
 	go func() {
 		for csIntegration.Next(c) {
-			re := csIntegration.Current.Index(1)
-			s.Event <- re.Value().String()
+			// re := csIntegration.Current.Index(1)
+			log.Println(csIntegration.Current.Elements())
+			// s.Event <- re.Value().String()
 		}
 	}()
 	return nil

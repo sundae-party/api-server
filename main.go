@@ -17,7 +17,7 @@ func main() {
 	// Create new mongo store
 	mongo := &storage.StoreOption{
 		Type:     "mongo",
-		Address:  []string{"mongo-test"},
+		Address:  []string{"172.17.0.3"},
 		Port:     "27017",
 		User:     "sundae",
 		Password: "pass",

@@ -49,10 +49,11 @@ func NewStore(ctx context.Context, ops *StoreOption) (Store, error) {
 		if err != nil {
 			return nil, err
 		}
-		hosts := []string{fmt.Sprintf("%s:%s", ops.Address, ops.Port)}
+		// TODO get rs name from ops, update address format ADDR:PORT
+		uri := fmt.Sprintf("mongodb://%s:%s/?replicaSet=rs0", ops.Address, ops.Port)
 		creds := options.Credential{AuthSource: "sundae", Username: ops.User, Password: ops.Password}
 		// Create new MongoStore object with provided opetions
-		ms, err := mongo_store.NewStore(ctx, ops.DbName, hosts, creds)
+		ms, err := mongo_store.NewStore(ctx, ops.DbName, uri, creds)
 		if err != nil {
 			fmt.Println(err)
 			return nil, errors.New("Fail connecting to mongo.")
