@@ -5,7 +5,6 @@ name: test
 services:
   - name: mongo
     image: mongo:4
-    hostname: mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME:
         from_secret: db_admin_user
@@ -13,7 +12,8 @@ services:
         from_secret: db_admin_pwd
     ports:
       - 27017
-    commands: [--replSet, rs0]
+    commands:
+      - mongod --replSet "rs0" --bind_ip 0.0.0.0
 
 steps:
   - name: get-mongodb-version
