@@ -1,3 +1,4 @@
+rs.initiate()
 db = db.getSiblingDB("sundae")
 db.createUser(
     {
@@ -10,5 +11,3 @@ db.createUser(
             }
         ]
     })
-
-rs.initiate();

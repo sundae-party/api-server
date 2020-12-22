@@ -12,6 +12,8 @@ services:
         from_secret: db_admin_pwd
     ports:
       - 27017
+    commands:
+      - mongod --replSet rs0
 
 steps:
   - name: get-mongodb-version
@@ -36,6 +38,7 @@ steps:
         from_secret: db_name
     commands:
       - date
+      - mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} rs.initiate()
       - mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} init_mongo_test.js
 
   - name: go-test

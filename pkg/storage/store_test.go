@@ -11,11 +11,11 @@ func TestNewStore(t *testing.T) {
 
 	mongoOpsOK := &StoreOption{
 		Type:     "mongo",
-		Address:  []string{"mongo"},
-		Port:     "27017",
+		Address:  []string{"mongo:27017"},
 		User:     "sundae",
 		Password: "pass",
 		DbName:   "sundae",
+		RsName:   "rs0",
 	}
 
 	_, err := NewStore(ctx, mongoOpsOK)
@@ -29,11 +29,11 @@ func TestPutIntegration(t *testing.T) {
 
 	mongoOpsOK := &StoreOption{
 		Type:     "mongo",
-		Address:  []string{"mongo"},
-		Port:     "27017",
+		Address:  []string{"mongo:27017"},
 		User:     "sundae",
 		Password: "pass",
 		DbName:   "sundae",
+		RsName:   "rs0",
 	}
 
 	iOk := &types.Integration{
@@ -78,11 +78,11 @@ func TestGetIntegration(t *testing.T) {
 
 	mongoOpsOK := &StoreOption{
 		Type:     "mongo",
-		Address:  []string{"mongo"},
-		Port:     "27017",
+		Address:  []string{"mongo:27017"},
 		User:     "sundae",
 		Password: "pass",
 		DbName:   "sundae",
+		RsName:   "rs0",
 	}
 
 	iOk := &types.Integration{
@@ -126,11 +126,11 @@ func TestDeleteIntegration(t *testing.T) {
 
 	mongoOpsOK := &StoreOption{
 		Type:     "mongo",
-		Address:  []string{"mongo"},
-		Port:     "27017",
+		Address:  []string{"mongo:27017"},
 		User:     "sundae",
 		Password: "pass",
 		DbName:   "sundae",
+		RsName:   "rs0",
 	}
 
 	iOk := &types.Integration{
