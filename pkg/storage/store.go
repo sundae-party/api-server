@@ -109,6 +109,11 @@ func checkMongoOptions(ops *StoreOption) error {
 		return errors.New("No mongo address provided.")
 	}
 
+	// Check if replicat set name is provided
+	if ops.RsName == "" {
+		return errors.New("Mongo replicat set name not provided.")
+	}
+
 	// Check if user and password or x509 provided
 	if (ops.User != "" && ops.Password != "") || ops.TLSConfig != nil {
 		return nil
