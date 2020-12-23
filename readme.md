@@ -34,3 +34,16 @@ Run the tests, if custom network was created for db container add the dev contai
 ```bash
 make go_test
 ```
+
+## API test
+
+curl create / update integration
+
+```bash
+curl -X POST -H "Content-Type: application/json" \
+    --cacert ca.pem \
+    --key cli.key \
+    --cert cli.pem \
+    -d '{"name": "Hue", "documentation": "https://sundae/doc/hue", "version": "v1.0.1", "url": "https://github.com/sundae-party/integration/hue"}' \
+    https://localhost/api/integration
+````
