@@ -5,9 +5,8 @@ import (
 	"errors"
 	"log"
 	"os"
-	"time"
-
 	"sundae-party/api-server/pkg/apis/core/types"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -96,7 +95,7 @@ func (ms MongoStore) PutIntegration(ctx context.Context, newIntegration *types.I
 	opts := options.FindOneAndReplace().SetUpsert(true)
 	opts = opts.SetReturnDocument(options.After)
 	// Select an integration with it's unique name
-	filter := bson.D{{Key: "name", Value: newIntegration.Name}}
+	filter := bson.D{{Key: "name", Value: newIntegration.Metadata.Name}}
 
 	// Convert intergration to bson
 	replacment, err := bson.Marshal(newIntegration)
@@ -150,7 +149,7 @@ func (ms MongoStore) DeleteIntegration(ctx context.Context, deleteIntegration *t
 	collection := ms.DataBase.Collection("integrations")
 
 	// Select an integration with it's unique name
-	filter := bson.D{{Key: "name", Value: deleteIntegration.Name}}
+	filter := bson.D{{Key: "name", Value: deleteIntegration.Metadata.Name}}
 
 	res := collection.FindOneAndDelete(c, filter)
 	if res.Err() != nil {
@@ -160,4 +159,30 @@ func (ms MongoStore) DeleteIntegration(ctx context.Context, deleteIntegration *t
 	res.Decode(deleted)
 
 	return deleted, nil
+}
+
+func (ms MongoStore) PutEntity(ctx context.Context, newEntity *types.Entity, entityType interface{}) (*interface{}, error) {
+	c, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+
+	collection := ms.DataBase.Collection("entities")
+	// If no entity found create new one and return it
+	// If exist update and return updated value instead old value
+	opts := options.FindOneAndReplace().SetUpsert(true)
+	opts = opts.SetReturnDocument(options.After)
+	// Select an entity with it's unique name
+	filter := bson.D{{Key: "name", Value: newEntity.Metadata.Name}}
+
+	// Convert entity to bson
+	replacment, err := bson.Marshal(newEntity)
+	if err != nil {
+		return nil, err
+	}
+	res := collection.FindOneAndReplace(c, filter, replacment, opts)
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+	updated := &entityType
+	res.Decode(updated)
+	return updated, nil
 }

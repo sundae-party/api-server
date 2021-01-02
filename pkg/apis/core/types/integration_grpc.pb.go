@@ -18,11 +18,12 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IntegrationHandlerClient interface {
 	Create(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error)
-	Get(ctx context.Context, in *IntegrationServerRequest, opts ...grpc.CallOption) (*Integration, error)
+	Get(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error)
 	Delete(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error)
-	SetState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*IntegrationState, error)
-	CallService(ctx context.Context, in *CallIntegrationServiceRequest, opts ...grpc.CallOption) (*CallIntegrationServiceResponse, error)
-	Connect(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_ConnectClient, error)
+	Update(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error)
+	Watch(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_WatchClient, error)
+	CallService(ctx context.Context, in *IntegrationServiceRequest, opts ...grpc.CallOption) (*IntegrationServiceResponse, error)
+	WatchService(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_WatchServiceClient, error)
 	StorePut(ctx context.Context, in *IntegrationStoreRequest, opts ...grpc.CallOption) (*IntegrationStoreRequest, error)
 	StoreGet(ctx context.Context, in *IntegrationStoreRequest, opts ...grpc.CallOption) (*IntegrationStoreRequest, error)
 }
@@ -44,7 +45,7 @@ func (c *integrationHandlerClient) Create(ctx context.Context, in *Integration, 
 	return out, nil
 }
 
-func (c *integrationHandlerClient) Get(ctx context.Context, in *IntegrationServerRequest, opts ...grpc.CallOption) (*Integration, error) {
+func (c *integrationHandlerClient) Get(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error) {
 	out := new(Integration)
 	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/Get", in, out, opts...)
 	if err != nil {
@@ -62,30 +63,21 @@ func (c *integrationHandlerClient) Delete(ctx context.Context, in *Integration, 
 	return out, nil
 }
 
-func (c *integrationHandlerClient) SetState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*IntegrationState, error) {
-	out := new(IntegrationState)
-	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/SetState", in, out, opts...)
+func (c *integrationHandlerClient) Update(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error) {
+	out := new(Integration)
+	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *integrationHandlerClient) CallService(ctx context.Context, in *CallIntegrationServiceRequest, opts ...grpc.CallOption) (*CallIntegrationServiceResponse, error) {
-	out := new(CallIntegrationServiceResponse)
-	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/CallService", in, out, opts...)
+func (c *integrationHandlerClient) Watch(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_WatchClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_IntegrationHandler_serviceDesc.Streams[0], "/types.IntegrationHandler/Watch", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
-}
-
-func (c *integrationHandlerClient) Connect(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_ConnectClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_IntegrationHandler_serviceDesc.Streams[0], "/types.IntegrationHandler/Connect", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &integrationHandlerConnectClient{stream}
+	x := &integrationHandlerWatchClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -95,17 +87,58 @@ func (c *integrationHandlerClient) Connect(ctx context.Context, in *Integration,
 	return x, nil
 }
 
-type IntegrationHandler_ConnectClient interface {
-	Recv() (*CallIntegrationServiceRequest, error)
+type IntegrationHandler_WatchClient interface {
+	Recv() (*Integration, error)
 	grpc.ClientStream
 }
 
-type integrationHandlerConnectClient struct {
+type integrationHandlerWatchClient struct {
 	grpc.ClientStream
 }
 
-func (x *integrationHandlerConnectClient) Recv() (*CallIntegrationServiceRequest, error) {
-	m := new(CallIntegrationServiceRequest)
+func (x *integrationHandlerWatchClient) Recv() (*Integration, error) {
+	m := new(Integration)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *integrationHandlerClient) CallService(ctx context.Context, in *IntegrationServiceRequest, opts ...grpc.CallOption) (*IntegrationServiceResponse, error) {
+	out := new(IntegrationServiceResponse)
+	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/CallService", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *integrationHandlerClient) WatchService(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_WatchServiceClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_IntegrationHandler_serviceDesc.Streams[1], "/types.IntegrationHandler/WatchService", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &integrationHandlerWatchServiceClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type IntegrationHandler_WatchServiceClient interface {
+	Recv() (*IntegrationServiceRequest, error)
+	grpc.ClientStream
+}
+
+type integrationHandlerWatchServiceClient struct {
+	grpc.ClientStream
+}
+
+func (x *integrationHandlerWatchServiceClient) Recv() (*IntegrationServiceRequest, error) {
+	m := new(IntegrationServiceRequest)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -135,11 +168,12 @@ func (c *integrationHandlerClient) StoreGet(ctx context.Context, in *Integration
 // for forward compatibility
 type IntegrationHandlerServer interface {
 	Create(context.Context, *Integration) (*Integration, error)
-	Get(context.Context, *IntegrationServerRequest) (*Integration, error)
+	Get(context.Context, *Integration) (*Integration, error)
 	Delete(context.Context, *Integration) (*Integration, error)
-	SetState(context.Context, *SetIntegrationStateRequest) (*IntegrationState, error)
-	CallService(context.Context, *CallIntegrationServiceRequest) (*CallIntegrationServiceResponse, error)
-	Connect(*Integration, IntegrationHandler_ConnectServer) error
+	Update(context.Context, *Integration) (*Integration, error)
+	Watch(*Integration, IntegrationHandler_WatchServer) error
+	CallService(context.Context, *IntegrationServiceRequest) (*IntegrationServiceResponse, error)
+	WatchService(*Integration, IntegrationHandler_WatchServiceServer) error
 	StorePut(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error)
 	StoreGet(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error)
 	mustEmbedUnimplementedIntegrationHandlerServer()
@@ -152,20 +186,23 @@ type UnimplementedIntegrationHandlerServer struct {
 func (UnimplementedIntegrationHandlerServer) Create(context.Context, *Integration) (*Integration, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) Get(context.Context, *IntegrationServerRequest) (*Integration, error) {
+func (UnimplementedIntegrationHandlerServer) Get(context.Context, *Integration) (*Integration, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedIntegrationHandlerServer) Delete(context.Context, *Integration) (*Integration, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) SetState(context.Context, *SetIntegrationStateRequest) (*IntegrationState, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
+func (UnimplementedIntegrationHandlerServer) Update(context.Context, *Integration) (*Integration, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) CallService(context.Context, *CallIntegrationServiceRequest) (*CallIntegrationServiceResponse, error) {
+func (UnimplementedIntegrationHandlerServer) Watch(*Integration, IntegrationHandler_WatchServer) error {
+	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
+}
+func (UnimplementedIntegrationHandlerServer) CallService(context.Context, *IntegrationServiceRequest) (*IntegrationServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CallService not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) Connect(*Integration, IntegrationHandler_ConnectServer) error {
-	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
+func (UnimplementedIntegrationHandlerServer) WatchService(*Integration, IntegrationHandler_WatchServiceServer) error {
+	return status.Errorf(codes.Unimplemented, "method WatchService not implemented")
 }
 func (UnimplementedIntegrationHandlerServer) StorePut(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StorePut not implemented")
@@ -205,7 +242,7 @@ func _IntegrationHandler_Create_Handler(srv interface{}, ctx context.Context, de
 }
 
 func _IntegrationHandler_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IntegrationServerRequest)
+	in := new(Integration)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -217,7 +254,7 @@ func _IntegrationHandler_Get_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/types.IntegrationHandler/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntegrationHandlerServer).Get(ctx, req.(*IntegrationServerRequest))
+		return srv.(IntegrationHandlerServer).Get(ctx, req.(*Integration))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -240,26 +277,47 @@ func _IntegrationHandler_Delete_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IntegrationHandler_SetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetIntegrationStateRequest)
+func _IntegrationHandler_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Integration)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IntegrationHandlerServer).SetState(ctx, in)
+		return srv.(IntegrationHandlerServer).Update(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/types.IntegrationHandler/SetState",
+		FullMethod: "/types.IntegrationHandler/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntegrationHandlerServer).SetState(ctx, req.(*SetIntegrationStateRequest))
+		return srv.(IntegrationHandlerServer).Update(ctx, req.(*Integration))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IntegrationHandler_Watch_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Integration)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(IntegrationHandlerServer).Watch(m, &integrationHandlerWatchServer{stream})
+}
+
+type IntegrationHandler_WatchServer interface {
+	Send(*Integration) error
+	grpc.ServerStream
+}
+
+type integrationHandlerWatchServer struct {
+	grpc.ServerStream
+}
+
+func (x *integrationHandlerWatchServer) Send(m *Integration) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _IntegrationHandler_CallService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CallIntegrationServiceRequest)
+	in := new(IntegrationServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -271,29 +329,29 @@ func _IntegrationHandler_CallService_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/types.IntegrationHandler/CallService",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntegrationHandlerServer).CallService(ctx, req.(*CallIntegrationServiceRequest))
+		return srv.(IntegrationHandlerServer).CallService(ctx, req.(*IntegrationServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IntegrationHandler_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _IntegrationHandler_WatchService_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(Integration)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(IntegrationHandlerServer).Connect(m, &integrationHandlerConnectServer{stream})
+	return srv.(IntegrationHandlerServer).WatchService(m, &integrationHandlerWatchServiceServer{stream})
 }
 
-type IntegrationHandler_ConnectServer interface {
-	Send(*CallIntegrationServiceRequest) error
+type IntegrationHandler_WatchServiceServer interface {
+	Send(*IntegrationServiceRequest) error
 	grpc.ServerStream
 }
 
-type integrationHandlerConnectServer struct {
+type integrationHandlerWatchServiceServer struct {
 	grpc.ServerStream
 }
 
-func (x *integrationHandlerConnectServer) Send(m *CallIntegrationServiceRequest) error {
+func (x *integrationHandlerWatchServiceServer) Send(m *IntegrationServiceRequest) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -350,8 +408,8 @@ var _IntegrationHandler_serviceDesc = grpc.ServiceDesc{
 			Handler:    _IntegrationHandler_Delete_Handler,
 		},
 		{
-			MethodName: "SetState",
-			Handler:    _IntegrationHandler_SetState_Handler,
+			MethodName: "Update",
+			Handler:    _IntegrationHandler_Update_Handler,
 		},
 		{
 			MethodName: "CallService",
@@ -368,8 +426,13 @@ var _IntegrationHandler_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Connect",
-			Handler:       _IntegrationHandler_Connect_Handler,
+			StreamName:    "Watch",
+			Handler:       _IntegrationHandler_Watch_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "WatchService",
+			Handler:       _IntegrationHandler_WatchService_Handler,
 			ServerStreams: true,
 		},
 	},

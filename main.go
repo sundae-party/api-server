@@ -3,12 +3,10 @@ package main
 import (
 	"context"
 	"log"
-	"math/rand"
 	"net"
 	"sundae-party/api-server/pkg/apis/core/integration"
 	"sundae-party/api-server/pkg/apis/core/types"
 	"sundae-party/api-server/pkg/server"
-	"time"
 
 	"sundae-party/api-server/pkg/storage"
 
@@ -44,25 +42,24 @@ func main() {
 
 	// Create Integration handler object
 	ih := &integration.IntegrationHandler{
-		Store:        mongoStore,
-		ServiceEvent: make(chan *types.CallIntegrationServiceRequest),
+		Store: mongoStore,
 	}
 
 	// TODO: test to be removed
-	go func() {
-		min := 1
-		max := 600
-		for {
-			val := rand.Intn(max-min) + min
-			time.Sleep(time.Duration(val) * time.Second)
-			ih.ServiceEvent <- &types.CallIntegrationServiceRequest{
-				IntegrationName: "Zwave",
-				Service: &types.IntegrationService{
-					Name: "refresh_entities",
-				},
-			}
-		}
-	}()
+	// go func() {
+	// 	min := 1
+	// 	max := 600
+	// 	for {
+	// 		val := rand.Intn(max-min) + min
+	// 		time.Sleep(time.Duration(val) * time.Second)
+	// 		ih.ServiceEvent <- &types.CallIntegrationServiceRequest{
+	// 			IntegrationName: "Zwave",
+	// 			Service: &types.IntegrationService{
+	// 				Name: "refresh_entities",
+	// 			},
+	// 		}
+	// 	}
+	// }()
 
 	// Add handlers to the server
 	// light.RegisterLightHandlerServer(grpcServer, &light.LightHandler{Store: s})

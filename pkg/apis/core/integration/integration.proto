@@ -2,15 +2,21 @@ syntax = "proto3";
 
 package types;
 
+import "google/protobuf/timestamp.proto";
+
+
 option go_package = "sundae-party/api-server/pkg/apis/core/types";
 
 service IntegrationHandler {
     rpc Create (Integration) returns (Integration);
-    rpc Get (IntegrationServerRequest) returns (Integration);
+    rpc Get (Integration) returns (Integration);
     rpc Delete (Integration) returns (Integration);
-    rpc SetState (SetIntegrationStateRequest) returns (IntegrationState);
-    rpc CallService (CallIntegrationServiceRequest) returns (CallIntegrationServiceResponse);
-    rpc Connect (Integration) returns (stream CallIntegrationServiceRequest);
+    rpc Update (Integration) returns (Integration);
+    rpc Watch (Integration) returns (stream Integration);
+
+    rpc CallService (IntegrationServiceRequest) returns (IntegrationServiceResponse);
+    rpc WatchService (Integration) returns (stream IntegrationServiceRequest);
+
     rpc StorePut (IntegrationStoreRequest) returns (IntegrationStoreRequest);
     rpc StoreGet (IntegrationStoreRequest) returns (IntegrationStoreRequest);
 }
@@ -21,36 +27,36 @@ message IntegrationStoreRequest {
     string value = 3;
 }
 
-message IntegrationServerRequest {
-    string integration_name = 1;
-}
-
-message CallIntegrationServiceRequest {
+message IntegrationServiceRequest {
     string integration_name = 1;
     IntegrationService service = 5;
 }
 
-message CallIntegrationServiceResponse {
+message IntegrationServiceResponse {
     bool success = 1;
     string error = 2;
 }
 
-message SetIntegrationStateRequest {
-    string integration_name = 1;
-    IntegrationState state = 5;
-}
-
 message Integration {
-    string name = 1;
-    string documentation = 2;
-    string version = 3;
-    string url = 4;
-    IntegrationState state = 5;
-    repeated IntegrationService services = 6;
-}
+    message IntegrationMeta {
+        map<string, string> annotations = 1;
+        google.protobuf.Timestamp creationTimestamp = 2;
+        string name = 3;
+        string uid = 4;
+        string documentation = 5;
+    }
 
-message IntegrationState {
-	bool connected = 1;
+    message IntegrationState {
+        string version = 1;
+        string url = 2;
+        bool connected = 3;
+    }
+    string apiVersion = 1;
+    string kind = 2;
+    IntegrationMeta metadata = 3;
+    IntegrationState state = 4;
+    IntegrationState desiredState = 5;
+    repeated IntegrationService services = 6;
 }
 
 message IntegrationService {

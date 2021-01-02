@@ -37,12 +37,14 @@ func TestPutIntegration(t *testing.T) {
 	}
 
 	iOk := &types.Integration{
-		Name:          "Hue",
-		Documentation: "https://sundae/doc/hue",
-		Version:       "v1.0.0",
-		Url:           "https://github.com/sundae-party/integration/hue",
-		State: &types.IntegrationState{
+		Metadata: &types.Integration_IntegrationMeta{
+			Name:          "Hue",
+			Documentation: "https://sundae/doc/hue",
+		},
+		State: &types.Integration_IntegrationState{
 			Connected: true,
+			Version:   "v1.0.0",
+			Url:       "https://github.com/sundae-party/integration/hue",
 		},
 		Services: []*types.IntegrationService{
 			{
@@ -86,12 +88,14 @@ func TestGetIntegration(t *testing.T) {
 	}
 
 	iOk := &types.Integration{
-		Name:          "Hue",
-		Documentation: "https://sundae/doc/hue",
-		Version:       "v1.0.0",
-		Url:           "https://github.com/sundae-party/integration/hue",
-		State: &types.IntegrationState{
+		Metadata: &types.Integration_IntegrationMeta{
+			Name:          "Hue",
+			Documentation: "https://sundae/doc/hue",
+		},
+		State: &types.Integration_IntegrationState{
 			Connected: true,
+			Version:   "v1.0.0",
+			Url:       "https://github.com/sundae-party/integration/hue",
 		},
 		Services: []*types.IntegrationService{
 			{
@@ -112,11 +116,11 @@ func TestGetIntegration(t *testing.T) {
 		t.Error(err)
 	}
 	t.Logf("Getting the integration\n")
-	gi, err := s.GetIntegration(ctx, iOk.Name)
+	gi, err := s.GetIntegration(ctx, iOk.Metadata.Name)
 	if err != nil {
 		t.Fatalf("Error getting new integration -> \nWANT \n%s \ngot \n%s\n", iOk, gi)
 	}
-	if gi.Name != iOk.Name {
+	if gi.Metadata.Name != iOk.Metadata.Name {
 		t.Fatalf("Error getting new integration -> \nWANT \n%s \ngot \n%s\n", iOk, gi)
 	}
 }
@@ -134,12 +138,14 @@ func TestDeleteIntegration(t *testing.T) {
 	}
 
 	iOk := &types.Integration{
-		Name:          "Hue",
-		Documentation: "https://sundae/doc/hue",
-		Version:       "v1.0.0",
-		Url:           "https://github.com/sundae-party/integration/hue",
-		State: &types.IntegrationState{
+		Metadata: &types.Integration_IntegrationMeta{
+			Name:          "Hue",
+			Documentation: "https://sundae/doc/hue",
+		},
+		State: &types.Integration_IntegrationState{
 			Connected: true,
+			Version:   "v1.0.0",
+			Url:       "https://github.com/sundae-party/integration/hue",
 		},
 		Services: []*types.IntegrationService{
 			{

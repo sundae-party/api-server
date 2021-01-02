@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package types;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "integration.proto";
+
+option go_package = "sundae-party/api-server/pkg/apis/core/types";
+
+service EntityHandler {
+    rpc Create (Entity) returns (Entity);
+    rpc Update (Entity) returns (Entity);
+    rpc Delete (Entity) returns (Entity);
+    rpc Watch (Entity) returns (stream Entity);
+    rpc GetByIntegration (types.Integration) returns (stream Entity);
+    rpc Get (GetEntitiesRequest) returns (stream Entity);
+}
+
+message GetEntitiesRequest {
+    // Intentionally empty.
+}
+
+message Entity {
+    string apiVersion = 1;
+    string kind = 2;
+    EntityMeta metadata = 3;
+    google.protobuf.Any state = 4;
+    google.protobuf.Any desiredState = 5;
+}
+
+message EntityMeta {
+    map<string, string> annotations = 1;
+    google.protobuf.Timestamp creationTimestamp = 2;
+    string name = 3;
+    string uid = 4;
+    types.Integration integration = 5;
+}

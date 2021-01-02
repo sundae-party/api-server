@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"sundae-party/api-server/pkg/apis/core/types"
-
 	mongo_store "sundae-party/api-server/pkg/storage/mongo"
 
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -20,10 +19,12 @@ var availableStoreType = map[string]string{
 }
 
 type Store interface {
-	GetEvent() chan string
+	GetEvent() chan string // TODO: Get event on all db or on event channel by collection/path
 	PutIntegration(context.Context, *types.Integration) (*types.Integration, error)
 	GetIntegration(context.Context, string) (*types.Integration, error)
 	DeleteIntegration(context.Context, *types.Integration) (*types.Integration, error)
+
+	PutEntity(context.Context, *types.Entity, interface{}) (*interface{}, error)
 }
 
 type StoreOption struct {
