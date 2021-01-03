@@ -20,8 +20,7 @@ Create new mongo for the tests:
 ```docker
 docker run \
     --rm -it --name mongo-test \
-    --hostname mongo0 \
-    -p 27017:27017 \
+    -p 27018:27017 \
     -e MONGO_INITDB_ROOT_USERNAME=admin \
     -e MONGO_INITDB_ROOT_PASSWORD=pwd \
     -e MONGO_INITDB_DATABASE=sundae \
