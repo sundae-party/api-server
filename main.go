@@ -19,7 +19,7 @@ func main() {
 	// Create new mongo store
 	mongo := &storage.StoreOption{
 		Type:     "mongo",
-		Address:  []string{"172.17.0.5:27017"},
+		Address:  []string{"gogs.connan.pro:27018"},
 		User:     "sundae",
 		Password: "pass",
 		DbName:   "sundae",

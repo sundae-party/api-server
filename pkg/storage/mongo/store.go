@@ -58,25 +58,21 @@ func NewStore(c context.Context, DbName string, uri string, creds options.Creden
 	return ms, nil
 }
 
-// Start mongo watch event on collections
+// Start mongo watch on all the db
 func WatchEvent(ctx context.Context, s *MongoStore) error {
-	csIntegration, err := s.DataBase.Collection("integrations").Watch(ctx, mongo.Pipeline{}, options.ChangeStream().SetFullDocument(options.UpdateLookup))
+
+	cs, err := s.DataBase.Watch(ctx, mongo.Pipeline{}, options.ChangeStream().SetFullDocument(options.UpdateLookup))
 	if err != nil {
 		return err
 	}
-	// TODO quit with cancel
-	c, cancel := context.WithCancel(ctx)
-	go func() {
-		<-s.Exit
-		log.Print("Stop prog: stop mongo watch")
-		cancel()
-	}()
-	// Integration loop event
+
+	// Db loop event
 	log.Println("Start watch")
 	go func() {
-		for csIntegration.Next(c) {
-			s.Event <- csIntegration.Current.String()
-			log.Println(csIntegration.Current.String())
+		for cs.Next(ctx) {
+			s.Event <- cs.Current.String()
+			// TODO: Debug mode only
+			log.Println(cs.Current.String())
 		}
 	}()
 	return nil

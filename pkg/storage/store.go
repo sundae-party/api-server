@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"fmt"
+	"log"
 	"strings"
 
 	"sundae-party/api-server/pkg/apis/core/types"
@@ -62,7 +62,7 @@ func NewStore(ctx context.Context, ops *StoreOption) (Store, error) {
 		// Create new MongoStore object with provided opetions
 		ms, err := mongo_store.NewStore(ctx, ops.DbName, uri, creds)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return nil, errors.New("Fail connecting to mongo.")
 		}
 		return ms, nil
