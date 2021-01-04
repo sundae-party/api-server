@@ -21,9 +21,25 @@ var availableStoreType = map[string]string{
 
 type Store interface {
 	GetEvent() chan string
+
 	PutIntegration(context.Context, *types.Integration) (*types.Integration, error)
 	GetIntegration(context.Context, string) (*types.Integration, error)
 	DeleteIntegration(context.Context, *types.Integration) (*types.Integration, error)
+
+	PutLight(context.Context, *types.Light) (*types.Light, error)
+	GetLight(context.Context, string) (*types.Light, error)
+	DeleteLight(context.Context, *types.Light) (*types.Light, error)
+}
+
+// TODO: Create a genrique watchEvent type struct
+type EventMessage struct {
+	OperationType string
+	FullDocument  interface{}
+	Ns            ns
+}
+type ns struct {
+	Db   string
+	Coll string
 }
 
 type StoreOption struct {

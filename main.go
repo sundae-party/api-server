@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net"
 	"sundae-party/api-server/pkg/apis/core/integration"
+	"sundae-party/api-server/pkg/apis/core/light"
 	"sundae-party/api-server/pkg/apis/core/types"
 	"sundae-party/api-server/pkg/server"
 	"time"
@@ -47,6 +48,10 @@ func main() {
 		Store:        mongoStore,
 		ServiceEvent: make(chan *types.CallIntegrationServiceRequest),
 	}
+	// Create Light handler
+	lh := &light.LightHandler{
+		Store: mongoStore,
+	}
 
 	// TODO: test to be removed
 	go func() {
@@ -65,8 +70,8 @@ func main() {
 	}()
 
 	// Add handlers to the server
-	// light.RegisterLightHandlerServer(grpcServer, &light.LightHandler{Store: s})
 	types.RegisterIntegrationHandlerServer(grpcServer, ih)
+	types.RegisterLightHandlerServer(grpcServer, lh)
 
 	// GRPC servers listen
 	go grpcServer.Serve(tcpLis)

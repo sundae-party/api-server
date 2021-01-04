@@ -17,11 +17,12 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LightHandlerClient interface {
-	SetDesiredState(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error)
-	SetState(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error)
+	Get(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error)
 	Create(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error)
-	GetByDevice(ctx context.Context, in *Integration, opts ...grpc.CallOption) (LightHandler_GetByDeviceClient, error)
-	GetByIntegration(ctx context.Context, in *Integration, opts ...grpc.CallOption) (LightHandler_GetByIntegrationClient, error)
+	Update(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error)
+	Delete(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error)
+	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (LightHandler_GetAllClient, error)
+	WatchAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (LightHandler_WatchAllClient, error)
 }
 
 type lightHandlerClient struct {
@@ -32,18 +33,9 @@ func NewLightHandlerClient(cc grpc.ClientConnInterface) LightHandlerClient {
 	return &lightHandlerClient{cc}
 }
 
-func (c *lightHandlerClient) SetDesiredState(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error) {
+func (c *lightHandlerClient) Get(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error) {
 	out := new(Light)
-	err := c.cc.Invoke(ctx, "/types.LightHandler/SetDesiredState", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *lightHandlerClient) SetState(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error) {
-	out := new(Light)
-	err := c.cc.Invoke(ctx, "/types.LightHandler/SetState", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/types.LightHandler/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -59,12 +51,30 @@ func (c *lightHandlerClient) Create(ctx context.Context, in *Light, opts ...grpc
 	return out, nil
 }
 
-func (c *lightHandlerClient) GetByDevice(ctx context.Context, in *Integration, opts ...grpc.CallOption) (LightHandler_GetByDeviceClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_LightHandler_serviceDesc.Streams[0], "/types.LightHandler/GetByDevice", opts...)
+func (c *lightHandlerClient) Update(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error) {
+	out := new(Light)
+	err := c.cc.Invoke(ctx, "/types.LightHandler/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &lightHandlerGetByDeviceClient{stream}
+	return out, nil
+}
+
+func (c *lightHandlerClient) Delete(ctx context.Context, in *Light, opts ...grpc.CallOption) (*Light, error) {
+	out := new(Light)
+	err := c.cc.Invoke(ctx, "/types.LightHandler/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *lightHandlerClient) GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (LightHandler_GetAllClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_LightHandler_serviceDesc.Streams[0], "/types.LightHandler/GetAll", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &lightHandlerGetAllClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -74,16 +84,16 @@ func (c *lightHandlerClient) GetByDevice(ctx context.Context, in *Integration, o
 	return x, nil
 }
 
-type LightHandler_GetByDeviceClient interface {
+type LightHandler_GetAllClient interface {
 	Recv() (*Light, error)
 	grpc.ClientStream
 }
 
-type lightHandlerGetByDeviceClient struct {
+type lightHandlerGetAllClient struct {
 	grpc.ClientStream
 }
 
-func (x *lightHandlerGetByDeviceClient) Recv() (*Light, error) {
+func (x *lightHandlerGetAllClient) Recv() (*Light, error) {
 	m := new(Light)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -91,12 +101,12 @@ func (x *lightHandlerGetByDeviceClient) Recv() (*Light, error) {
 	return m, nil
 }
 
-func (c *lightHandlerClient) GetByIntegration(ctx context.Context, in *Integration, opts ...grpc.CallOption) (LightHandler_GetByIntegrationClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_LightHandler_serviceDesc.Streams[1], "/types.LightHandler/GetByIntegration", opts...)
+func (c *lightHandlerClient) WatchAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (LightHandler_WatchAllClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_LightHandler_serviceDesc.Streams[1], "/types.LightHandler/WatchAll", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &lightHandlerGetByIntegrationClient{stream}
+	x := &lightHandlerWatchAllClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -106,16 +116,16 @@ func (c *lightHandlerClient) GetByIntegration(ctx context.Context, in *Integrati
 	return x, nil
 }
 
-type LightHandler_GetByIntegrationClient interface {
+type LightHandler_WatchAllClient interface {
 	Recv() (*Light, error)
 	grpc.ClientStream
 }
 
-type lightHandlerGetByIntegrationClient struct {
+type lightHandlerWatchAllClient struct {
 	grpc.ClientStream
 }
 
-func (x *lightHandlerGetByIntegrationClient) Recv() (*Light, error) {
+func (x *lightHandlerWatchAllClient) Recv() (*Light, error) {
 	m := new(Light)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -127,11 +137,12 @@ func (x *lightHandlerGetByIntegrationClient) Recv() (*Light, error) {
 // All implementations must embed UnimplementedLightHandlerServer
 // for forward compatibility
 type LightHandlerServer interface {
-	SetDesiredState(context.Context, *Light) (*Light, error)
-	SetState(context.Context, *Light) (*Light, error)
+	Get(context.Context, *Light) (*Light, error)
 	Create(context.Context, *Light) (*Light, error)
-	GetByDevice(*Integration, LightHandler_GetByDeviceServer) error
-	GetByIntegration(*Integration, LightHandler_GetByIntegrationServer) error
+	Update(context.Context, *Light) (*Light, error)
+	Delete(context.Context, *Light) (*Light, error)
+	GetAll(*GetAllRequest, LightHandler_GetAllServer) error
+	WatchAll(*GetAllRequest, LightHandler_WatchAllServer) error
 	mustEmbedUnimplementedLightHandlerServer()
 }
 
@@ -139,20 +150,23 @@ type LightHandlerServer interface {
 type UnimplementedLightHandlerServer struct {
 }
 
-func (UnimplementedLightHandlerServer) SetDesiredState(context.Context, *Light) (*Light, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetDesiredState not implemented")
-}
-func (UnimplementedLightHandlerServer) SetState(context.Context, *Light) (*Light, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
+func (UnimplementedLightHandlerServer) Get(context.Context, *Light) (*Light, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedLightHandlerServer) Create(context.Context, *Light) (*Light, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedLightHandlerServer) GetByDevice(*Integration, LightHandler_GetByDeviceServer) error {
-	return status.Errorf(codes.Unimplemented, "method GetByDevice not implemented")
+func (UnimplementedLightHandlerServer) Update(context.Context, *Light) (*Light, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedLightHandlerServer) GetByIntegration(*Integration, LightHandler_GetByIntegrationServer) error {
-	return status.Errorf(codes.Unimplemented, "method GetByIntegration not implemented")
+func (UnimplementedLightHandlerServer) Delete(context.Context, *Light) (*Light, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedLightHandlerServer) GetAll(*GetAllRequest, LightHandler_GetAllServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+}
+func (UnimplementedLightHandlerServer) WatchAll(*GetAllRequest, LightHandler_WatchAllServer) error {
+	return status.Errorf(codes.Unimplemented, "method WatchAll not implemented")
 }
 func (UnimplementedLightHandlerServer) mustEmbedUnimplementedLightHandlerServer() {}
 
@@ -167,38 +181,20 @@ func RegisterLightHandlerServer(s grpc.ServiceRegistrar, srv LightHandlerServer)
 	s.RegisterService(&_LightHandler_serviceDesc, srv)
 }
 
-func _LightHandler_SetDesiredState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LightHandler_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Light)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LightHandlerServer).SetDesiredState(ctx, in)
+		return srv.(LightHandlerServer).Get(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/types.LightHandler/SetDesiredState",
+		FullMethod: "/types.LightHandler/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LightHandlerServer).SetDesiredState(ctx, req.(*Light))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _LightHandler_SetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Light)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(LightHandlerServer).SetState(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/types.LightHandler/SetState",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LightHandlerServer).SetState(ctx, req.(*Light))
+		return srv.(LightHandlerServer).Get(ctx, req.(*Light))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -221,45 +217,81 @@ func _LightHandler_Create_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _LightHandler_GetByDevice_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Integration)
+func _LightHandler_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Light)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LightHandlerServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/types.LightHandler/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LightHandlerServer).Update(ctx, req.(*Light))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LightHandler_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Light)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LightHandlerServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/types.LightHandler/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LightHandlerServer).Delete(ctx, req.(*Light))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LightHandler_GetAll_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetAllRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(LightHandlerServer).GetByDevice(m, &lightHandlerGetByDeviceServer{stream})
+	return srv.(LightHandlerServer).GetAll(m, &lightHandlerGetAllServer{stream})
 }
 
-type LightHandler_GetByDeviceServer interface {
+type LightHandler_GetAllServer interface {
 	Send(*Light) error
 	grpc.ServerStream
 }
 
-type lightHandlerGetByDeviceServer struct {
+type lightHandlerGetAllServer struct {
 	grpc.ServerStream
 }
 
-func (x *lightHandlerGetByDeviceServer) Send(m *Light) error {
+func (x *lightHandlerGetAllServer) Send(m *Light) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _LightHandler_GetByIntegration_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Integration)
+func _LightHandler_WatchAll_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetAllRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(LightHandlerServer).GetByIntegration(m, &lightHandlerGetByIntegrationServer{stream})
+	return srv.(LightHandlerServer).WatchAll(m, &lightHandlerWatchAllServer{stream})
 }
 
-type LightHandler_GetByIntegrationServer interface {
+type LightHandler_WatchAllServer interface {
 	Send(*Light) error
 	grpc.ServerStream
 }
 
-type lightHandlerGetByIntegrationServer struct {
+type lightHandlerWatchAllServer struct {
 	grpc.ServerStream
 }
 
-func (x *lightHandlerGetByIntegrationServer) Send(m *Light) error {
+func (x *lightHandlerWatchAllServer) Send(m *Light) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -268,27 +300,31 @@ var _LightHandler_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*LightHandlerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SetDesiredState",
-			Handler:    _LightHandler_SetDesiredState_Handler,
-		},
-		{
-			MethodName: "SetState",
-			Handler:    _LightHandler_SetState_Handler,
+			MethodName: "Get",
+			Handler:    _LightHandler_Get_Handler,
 		},
 		{
 			MethodName: "Create",
 			Handler:    _LightHandler_Create_Handler,
 		},
+		{
+			MethodName: "Update",
+			Handler:    _LightHandler_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _LightHandler_Delete_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "GetByDevice",
-			Handler:       _LightHandler_GetByDevice_Handler,
+			StreamName:    "GetAll",
+			Handler:       _LightHandler_GetAll_Handler,
 			ServerStreams: true,
 		},
 		{
-			StreamName:    "GetByIntegration",
-			Handler:       _LightHandler_GetByIntegration_Handler,
+			StreamName:    "WatchAll",
+			Handler:       _LightHandler_WatchAll_Handler,
 			ServerStreams: true,
 		},
 	},

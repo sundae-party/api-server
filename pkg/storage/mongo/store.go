@@ -157,3 +157,83 @@ func (ms MongoStore) DeleteIntegration(ctx context.Context, deleteIntegration *t
 
 	return deleted, nil
 }
+
+//
+//
+// TODO: Use an interface to represent an entity
+//
+//
+
+func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.Light, error) {
+	c, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+
+	collection := ms.DataBase.Collection("entities")
+	// If no light found create new one
+	// If light exist update it and return updated value instead old value
+	opts := options.FindOneAndReplace().SetUpsert(true)
+	opts = opts.SetReturnDocument(options.After)
+	// Select the light with it's unique name
+	filter := bson.D{{Key: "name", Value: light.Name}}
+
+	// Convert light to bson
+	replacment, err := bson.Marshal(light)
+	if err != nil {
+		return nil, err
+	}
+	res := collection.FindOneAndReplace(c, filter, replacment, opts)
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+	updated := &types.Light{}
+	res.Decode(updated)
+	return updated, nil
+}
+
+func (ms MongoStore) GetLight(ctx context.Context, name string) (*types.Light, error) {
+	c, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+
+	collection := ms.DataBase.Collection("entities")
+
+	// Select a light with it's unique name
+	filter := bson.D{{Key: "name", Value: name}}
+
+	cursor, err := collection.Find(c, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []types.Light
+	err = cursor.All(c, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(result) > 1 {
+		return nil, errors.New("This Light has been found more than once.")
+	}
+	if len(result) == 0 {
+		return nil, errors.New("Light not found.")
+	}
+	return &result[0], nil
+}
+
+func (ms MongoStore) DeleteLight(ctx context.Context, light *types.Light) (*types.Light, error) {
+	c, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+
+	collection := ms.DataBase.Collection("entities")
+
+	// Select a light with it's unique name
+	filter := bson.D{{Key: "name", Value: light.Name}}
+
+	res := collection.FindOneAndDelete(c, filter)
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+	deleted := &types.Light{}
+	res.Decode(deleted)
+
+	return deleted, nil
+}

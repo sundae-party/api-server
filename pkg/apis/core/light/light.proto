@@ -7,11 +7,17 @@ import "integration.proto";
 option go_package = "sundae-party/api-server/pkg/apis/core/types";
 
 service LightHandler {
-    rpc SetDesiredState (Light) returns (Light);
-    rpc SetState (Light) returns (Light);
+    rpc Get (Light) returns (Light);
     rpc Create (Light) returns (Light);
-    rpc GetByDevice (types.Integration) returns (stream Light);
-    rpc GetByIntegration (types.Integration) returns (stream Light);
+    rpc Update (Light) returns (Light);
+    rpc Delete (Light) returns (Light);
+
+    rpc GetAll (GetAllRequest) returns (stream Light);
+    rpc WatchAll (GetAllRequest) returns (stream Light);
+}
+
+message GetAllRequest {
+    // intentionally empty
 }
 
 message Light {
