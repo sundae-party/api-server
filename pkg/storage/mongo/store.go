@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"sundae-party/api-server/pkg/apis/core/types"
@@ -13,6 +14,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"go.mongodb.org/mongo-driver/bson"
+)
+
+const (
+	integrationCollection = "integrations"
+	entityCollection      = "entities"
 )
 
 type MongoStore struct {
@@ -39,8 +45,12 @@ func NewStore(c context.Context, DbName string, uri string, creds options.Creden
 		return nil, err
 	}
 
-	// Select the database
+	// Select and init the database
 	db := client.Database(DbName)
+	err = initDb(c, db)
+	if err != nil {
+		return nil, err
+	}
 
 	ms := &MongoStore{
 		Client:   client,
@@ -56,6 +66,44 @@ func NewStore(c context.Context, DbName string, uri string, creds options.Creden
 	}
 
 	return ms, nil
+}
+
+func initDb(c context.Context, db *mongo.Database) error {
+	ctx, cancel := context.WithTimeout(c, time.Second*2)
+	defer cancel()
+
+	// Create integration index with name as unique value
+	integrationCollection := db.Collection(integrationCollection)
+
+	integrationIndex := mongo.IndexModel{
+		Keys: bson.D{
+			{Key: "name", Value: 1},
+		},
+		Options: options.Index().SetUnique(true),
+	}
+
+	indexName, err := integrationCollection.Indexes().CreateOne(ctx, integrationIndex)
+	if err != nil {
+		return err
+	}
+	log.Printf("Index %s created\n", indexName)
+
+	// Create entity index with integration name and entity name pair as unique value
+	ientityCollection := db.Collection(entityCollection)
+	entityIndex := mongo.IndexModel{
+		Keys: bson.D{
+			{Key: "integration.name", Value: 1},
+			{Key: "name", Value: 2},
+		},
+		Options: options.Index().SetUnique(true),
+	}
+
+	indexName, err = ientityCollection.Indexes().CreateOne(ctx, entityIndex)
+	if err != nil {
+		return err
+	}
+	log.Printf("Index %s created\n", indexName)
+	return nil
 }
 
 // Start mongo watch on all the db
@@ -87,7 +135,7 @@ func (ms MongoStore) PutIntegration(ctx context.Context, newIntegration *types.I
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
-	collection := ms.DataBase.Collection("integrations")
+	collection := ms.DataBase.Collection(integrationCollection)
 	// If no integration found create new one and return updated value instead old value
 	opts := options.FindOneAndReplace().SetUpsert(true)
 	opts = opts.SetReturnDocument(options.After)
@@ -114,7 +162,7 @@ func (ms MongoStore) GetIntegration(ctx context.Context, name string) (*types.In
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
-	collection := ms.DataBase.Collection("integrations")
+	collection := ms.DataBase.Collection(integrationCollection)
 
 	// Select an integration with it's unique name
 	filter := bson.D{{Key: "name", Value: name}}
@@ -143,7 +191,7 @@ func (ms MongoStore) DeleteIntegration(ctx context.Context, deleteIntegration *t
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
-	collection := ms.DataBase.Collection("integrations")
+	collection := ms.DataBase.Collection(integrationCollection)
 
 	// Select an integration with it's unique name
 	filter := bson.D{{Key: "name", Value: deleteIntegration.Name}}
@@ -164,76 +212,104 @@ func (ms MongoStore) DeleteIntegration(ctx context.Context, deleteIntegration *t
 //
 //
 
-func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.Light, error) {
+func (ms MongoStore) PutEntity(ctx context.Context, key string, entity []byte) ([]byte, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
-	collection := ms.DataBase.Collection("entities")
-	// If no light found create new one
-	// If light exist update it and return updated value instead old value
+	// decode key in order to extract integration and entity name
+	// ex /integration01/entityA
+	entityInfos := strings.Split(key, "/")
+	if len(entityInfos) != 2 {
+		return nil, errors.New("Invalid key format.")
+	}
+
+	collection := ms.DataBase.Collection(entityCollection)
+	// If no entity found create new one
+	// If entity exist update it and return updated value
 	opts := options.FindOneAndReplace().SetUpsert(true)
 	opts = opts.SetReturnDocument(options.After)
-	// Select the light with it's unique name
-	filter := bson.D{{Key: "name", Value: light.Name}}
-
-	// Convert light to bson
-	replacment, err := bson.Marshal(light)
-	if err != nil {
-		return nil, err
+	// Select the entity with it's unique name and integration pairs
+	// ex:
+	//	{"integration": int1, "name": "ent1"}
+	//	{"integration": int1, "name": "ent1"} KO
+	//	{"integration": int1, "name": "ent2"} OK
+	//	{"integration": int2, "name": "ent1"} Ok
+	//
+	filter := bson.D{
+		{Key: "integration.name", Value: entityInfos[0]},
+		{Key: "name", Value: entityInfos[1]},
 	}
-	res := collection.FindOneAndReplace(c, filter, replacment, opts)
+
+	res := collection.FindOneAndReplace(c, filter, entity, opts)
 	if res.Err() != nil {
 		return nil, res.Err()
 	}
-	updated := &types.Light{}
-	res.Decode(updated)
+	updated, err := res.DecodeBytes()
+	if err != nil {
+		return nil, err
+	}
 	return updated, nil
 }
 
-func (ms MongoStore) GetLight(ctx context.Context, name string) (*types.Light, error) {
+func (ms MongoStore) GetEntityByName(ctx context.Context, key string) ([]byte, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
-	collection := ms.DataBase.Collection("entities")
+	// decode key in order to extract integration and entity name
+	// ex /integration01/entityA
+	entityInfos := strings.Split(key, "/")
+	if len(entityInfos) != 2 {
+		return nil, errors.New("Invalid key format.")
+	}
 
-	// Select a light with it's unique name
-	filter := bson.D{{Key: "name", Value: name}}
+	collection := ms.DataBase.Collection(entityCollection)
 
-	cursor, err := collection.Find(c, filter)
+	// Select the entity with it's unique name
+	filter := bson.D{
+		{Key: "integration.name", Value: entityInfos[0]},
+		{Key: "name", Value: entityInfos[1]},
+	}
+
+	res := collection.FindOne(c, filter)
+
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+
+	entity, err := res.DecodeBytes()
 	if err != nil {
 		return nil, err
 	}
 
-	var result []types.Light
-	err = cursor.All(c, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(result) > 1 {
-		return nil, errors.New("This Light has been found more than once.")
-	}
-	if len(result) == 0 {
-		return nil, errors.New("Light not found.")
-	}
-	return &result[0], nil
+	return entity, nil
 }
 
-func (ms MongoStore) DeleteLight(ctx context.Context, light *types.Light) (*types.Light, error) {
+func (ms MongoStore) DeleteEntity(ctx context.Context, key string, entity []byte) ([]byte, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
-	collection := ms.DataBase.Collection("entities")
+	// decode key in order to extract integration and entity name
+	// ex /integration01/entityA
+	entityInfos := strings.Split(key, "/")
+	if len(entityInfos) != 2 {
+		return nil, errors.New("Invalid key format.")
+	}
 
-	// Select a light with it's unique name
-	filter := bson.D{{Key: "name", Value: light.Name}}
+	collection := ms.DataBase.Collection(entityCollection)
+
+	// Select the entity with it's unique name
+	filter := bson.D{
+		{Key: "integration.name", Value: entityInfos[0]},
+		{Key: "name", Value: entityInfos[1]},
+	}
 
 	res := collection.FindOneAndDelete(c, filter)
 	if res.Err() != nil {
 		return nil, res.Err()
 	}
-	deleted := &types.Light{}
-	res.Decode(deleted)
-
+	deleted, err := res.DecodeBytes()
+	if err != nil {
+		return nil, err
+	}
 	return deleted, nil
 }

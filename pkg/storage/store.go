@@ -26,9 +26,9 @@ type Store interface {
 	GetIntegration(context.Context, string) (*types.Integration, error)
 	DeleteIntegration(context.Context, *types.Integration) (*types.Integration, error)
 
-	PutLight(context.Context, *types.Light) (*types.Light, error)
-	GetLight(context.Context, string) (*types.Light, error)
-	DeleteLight(context.Context, *types.Light) (*types.Light, error)
+	PutEntity(context.Context, string, []byte) ([]byte, error)
+	GetEntityByName(context.Context, string) ([]byte, error)
+	DeleteEntity(context.Context, string, []byte) ([]byte, error)
 }
 
 // TODO: Create a genrique watchEvent type struct

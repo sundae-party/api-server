@@ -3,8 +3,10 @@ package light
 import (
 	context "context"
 	"encoding/json"
+	"fmt"
 	"log"
 
+	"go.mongodb.org/mongo-driver/bson"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 
@@ -18,32 +20,54 @@ type LightHandler struct {
 }
 
 func (lh LightHandler) Get(ctx context.Context, l *types.Light) (*types.Light, error) {
-	light, err := lh.Store.GetLight(ctx, l.Name)
+	res, err := lh.Store.GetEntityByName(ctx, l.Name)
+	if err != nil {
+		return nil, err
+	}
+	light := &types.Light{}
+	err = bson.Unmarshal(res, light)
 	if err != nil {
 		return nil, err
 	}
 	return light, nil
 }
 func (lh LightHandler) Create(ctx context.Context, l *types.Light) (*types.Light, error) {
-	light, err := lh.Store.PutLight(ctx, l)
+	key := fmt.Sprintf("%s/%s", l.Integration.Name, l.Name)
+	lightBson, err := bson.Marshal(l)
 	if err != nil {
 		return nil, err
 	}
-	return light, nil
+
+	res, err := lh.Store.PutEntity(ctx, key, lightBson)
+	if err != nil {
+		return nil, err
+	}
+	createdLight := &types.Light{}
+	err = bson.Unmarshal(res, createdLight)
+	if err != nil {
+		return nil, err
+	}
+	return createdLight, nil
 }
 func (lh LightHandler) Update(ctx context.Context, l *types.Light) (*types.Light, error) {
-	light, err := lh.Store.PutLight(ctx, l)
-	if err != nil {
-		return nil, err
-	}
-	return light, nil
+	return lh.Create(ctx, l)
 }
 func (lh LightHandler) Delete(ctx context.Context, l *types.Light) (*types.Light, error) {
-	light, err := lh.Store.DeleteLight(ctx, l)
+	key := fmt.Sprintf("%s/%s", l.Integration.Name, l.Name)
+	lightBson, err := bson.Marshal(l)
 	if err != nil {
 		return nil, err
 	}
-	return light, nil
+	res, err := lh.Store.DeleteEntity(ctx, key, lightBson)
+	if err != nil {
+		return nil, err
+	}
+	deletedLight := &types.Light{}
+	err = bson.Unmarshal(res, deletedLight)
+	if err != nil {
+		return nil, err
+	}
+	return deletedLight, nil
 }
 func (lh LightHandler) GetAll(*types.GetAllRequest, types.LightHandler_GetAllServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAll not implemented")
