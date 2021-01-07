@@ -284,6 +284,57 @@ func (ms MongoStore) GetEntityByName(ctx context.Context, key string) ([]byte, e
 	return entity, nil
 }
 
+func (ms MongoStore) GetAllEntities(c context.Context) ([][]byte, error) {
+	ctx, cancel := context.WithTimeout(c, time.Second*1)
+	defer cancel()
+
+	collection := ms.DataBase.Collection(entityCollection)
+
+	cursor, err := collection.Find(ctx, bson.D{})
+	if err != nil {
+		return nil, err
+	}
+
+	var res [][]byte
+	err = cursor.All(ctx, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+func (ms MongoStore) GetEntitiesByIntegration(c context.Context, key string) ([][]byte, error) {
+	ctx, cancel := context.WithTimeout(c, time.Second*1)
+	defer cancel()
+
+	// decode key in order to extract integration and entity name
+	// ex /integration01/entityA
+	entityInfos := strings.Split(key, "/")
+	if len(entityInfos) != 2 {
+		return nil, errors.New("Invalid key format.")
+	}
+
+	collection := ms.DataBase.Collection(entityCollection)
+
+	// Select the entity with it's unique name
+	filter := bson.D{
+		{Key: "integration.name", Value: entityInfos[0]},
+	}
+
+	cursor, err := collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	var res [][]byte
+	err = cursor.All(ctx, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (ms MongoStore) DeleteEntity(ctx context.Context, key string, entity []byte) ([]byte, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()

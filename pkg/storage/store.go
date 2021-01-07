@@ -28,6 +28,8 @@ type Store interface {
 
 	PutEntity(context.Context, string, []byte) ([]byte, error)
 	GetEntityByName(context.Context, string) ([]byte, error)
+	GetAllEntities(context.Context) ([][]byte, error)
+	GetEntitiesByIntegration(context.Context, string) ([][]byte, error)
 	DeleteEntity(context.Context, string, []byte) ([]byte, error)
 }
 
