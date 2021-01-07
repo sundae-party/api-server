@@ -294,9 +294,8 @@ func (ms MongoStore) GetAllEntities(c context.Context) ([][]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	var res [][]byte
-	err = cursor.All(ctx, res)
+	err = cursor.All(ctx, &res)
 	if err != nil {
 		return nil, err
 	}

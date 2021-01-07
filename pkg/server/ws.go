@@ -86,6 +86,15 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
+
+	// TODO: Send to the new client the entity list
+	// res, err := hub.store.GetAllEntities(r.Context())
+	// if err != nil {
+	// 	client.send <- []byte(err.Error())
+	// }
+
+	// client.send <- res
+
 }
 
 // Create new hub object
