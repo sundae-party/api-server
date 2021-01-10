@@ -1,45 +1,15 @@
-<!-- development version, includes helpful console warnings -->
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
-
-
-
-<div id="app">
-    <h1>{{message}}</h1>
-    <p>
-      <!-- use router-link component for navigation. -->
-      <!-- specify the link by passing the `to` prop. -->
-      <!-- `<router-link>` will be rendered as an `<a>` tag by default -->
-      <router-link to="/foo">Go to Foo</router-link>
-      <router-link to="/bar">Go to Bar</router-link>
-    </p>
-    <!-- route outlet -->
-    <!-- component matched by the route will render here -->
-    <router-view></router-view>
-  </div>
-
-<script>
-
-    // 1. Define route components.
-    const Foo = { template: '<div>foo</div>' }
-    const Bar = { template: '<div>bar</div>' }
-
-    // 2. Define some routes
-    const routes = [
-        { path: '/foo', component: Foo },
-        { path: '/bar', component: Bar }
-    ]
-
-    // 3. Create the router instance and pass the `routes` option
-    const router = new VueRouter({
-        routes
-    })
-
-    // 4. Create and mount the root instance.
-    const app = new Vue({
-        data: {
-            message: 'Hello Vue!'
-        },
-        router
-    }).$mount('#app')
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vite App</title>
+<script type="module" src="/_assets/index.c3c2ba8f.js"></script>
+<link rel="stylesheet" href="/_assets/style.851637eb.css">
+</head>
+<body>
+  <div id="app"></div>
+  
+</body>
+</html>

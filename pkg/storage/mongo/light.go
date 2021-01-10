@@ -2,9 +2,11 @@ package mongo
 
 import (
 	"context"
+	"log"
 	"sundae-party/api-server/pkg/apis/core/types"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 //
@@ -19,28 +21,22 @@ func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.L
 	// Ensure kind is set to Light
 	light.Mutation = "light"
 
-	// Convert light to bson object
-	bsonLight, err := bson.Marshal(light)
-	if err != nil {
-		return nil, err
-	}
-
 	// Put the entity in the store
-	res, err := ms.putEntity(ctx, light.Integration.Name, light.Name, bsonLight)
-
-	// Convert bson result to light object
-	var updated types.Light
-	err = res.Decode(&updated)
+	res, err := ms.UpdateLightState(ctx, light)
 	if err != nil {
 		return nil, err
 	}
-	return &updated, nil
+
+	return res, nil
 }
 
 // The key must be formated with "intergrationName/lightName" and can't be empty
 func (ms MongoStore) GetLightByName(ctx context.Context, key string) (*types.Light, error) {
 
 	res, err := ms.getEntityByName(ctx, key)
+	if err != nil {
+		return nil, err
+	}
 
 	// Convert bson result to light object
 	var light types.Light
@@ -70,7 +66,6 @@ func (ms MongoStore) GetAllLight(c context.Context) ([]types.Light, error) {
 
 // GetLightByIntegration return a list of light
 func (ms MongoStore) GetLightByIntegration(c context.Context, key string) ([]types.Light, error) {
-
 	integrationName, _, err := decodeKey(key)
 	if err != nil {
 		return nil, err
@@ -92,7 +87,6 @@ func (ms MongoStore) GetLightByIntegration(c context.Context, key string) ([]typ
 
 // Delete a light in the store
 func (ms MongoStore) DeleteLight(ctx context.Context, light *types.Light) (*types.Light, error) {
-
 	res, err := ms.deleteEntity(ctx, light.Integration.Name, light.Name)
 	if err != nil {
 		return nil, err
@@ -105,4 +99,51 @@ func (ms MongoStore) DeleteLight(ctx context.Context, light *types.Light) (*type
 	}
 
 	return &deleted, nil
+}
+
+// UpdateLightState will try to update the light state in the store, if the light is not present in the store it will be created
+func (ms MongoStore) UpdateLightState(ctx context.Context, light *types.Light) (*types.Light, error) {
+
+	// Convert light state to bson object
+	bsonLightState := bson.M{"state": light.State}
+
+	// Try to update light
+	res, err := ms.updateEntityState(ctx, light.Integration.Name, light.Name, bsonLightState)
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+
+			// This light dosn't exist, create it
+			log.Println("light dosn't exist") /// TODO: debug
+
+			// Convert light to bson object
+			bsonLight, err := bson.Marshal(light)
+			if err != nil {
+				return nil, err
+			}
+
+			// Try to create the new light
+			newLight, err := ms.putEntity(ctx, light.Integration.Name, light.Name, bsonLight)
+			if err != nil {
+				return nil, err
+			}
+
+			// Convert bson result to light object
+			var updated types.Light
+			err = newLight.Decode(&updated)
+			if err != nil {
+				return nil, err
+			}
+			log.Println("new light created") /// TODO: debug
+			return &updated, nil
+		}
+	}
+
+	// Light updated
+	var updated types.Light
+	err = res.Decode(&updated)
+	if err != nil {
+		return nil, err
+	}
+	log.Println("light state update") /// TODO: debug
+	return &updated, nil
 }

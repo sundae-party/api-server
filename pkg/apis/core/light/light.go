@@ -17,31 +17,16 @@ type LightHandler struct {
 }
 
 func (lh LightHandler) Get(ctx context.Context, l *types.Light) (*types.Light, error) {
-	res, err := lh.Store.GetLightByName(ctx, l.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	return lh.Store.GetLightByName(ctx, l.Name)
 }
 func (lh LightHandler) Create(ctx context.Context, l *types.Light) (*types.Light, error) {
-	res, err := lh.Store.PutLight(ctx, l)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	return lh.Store.PutLight(ctx, l)
 }
 func (lh LightHandler) Update(ctx context.Context, l *types.Light) (*types.Light, error) {
-	return lh.Create(ctx, l)
+	return lh.Store.UpdateLightState(ctx, l)
 }
 func (lh LightHandler) Delete(ctx context.Context, l *types.Light) (*types.Light, error) {
-	res, err := lh.Store.DeleteLight(ctx, l)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	return lh.Store.DeleteLight(ctx, l)
 }
 func (lh LightHandler) GetAll(*types.GetAllRequest, types.LightHandler_GetAllServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAll not implemented")

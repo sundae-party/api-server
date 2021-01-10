@@ -2,10 +2,9 @@ package mongo
 
 import (
 	"context"
-	"errors"
-	"log"
-	"time"
 	"encoding/json"
+	"errors"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -126,14 +125,10 @@ func (ms MongoStore) GetAllEntities(c context.Context, kind string, integrationN
 		return nil, err
 	}
 
-	log.Printf("%s", bsonRes)
-
 	res, err := json.Marshal(bsonRes)
 	if err != nil {
 		return nil, err
 	}
-
-	log.Printf("%s", res)
 
 	return res, nil
 }
@@ -152,6 +147,31 @@ func (ms MongoStore) deleteEntity(ctx context.Context, integrationName string, e
 	}
 
 	res := collection.FindOneAndDelete(c, filter)
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+
+	return res, nil
+}
+
+func (ms MongoStore) updateEntityState(ctx context.Context, integrationName string, entityName string, state bson.M) (*mongo.SingleResult, error) {
+	c, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+
+	collection := ms.DataBase.Collection(entityCollection)
+
+	// Select the entity with it's unique name
+	filter := bson.D{
+		{Key: "integration.name", Value: integrationName},
+		{Key: "name", Value: entityName},
+	}
+
+	// Return new val insted old val
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+
+	update := bson.M{"$set": state}
+
+	res := collection.FindOneAndUpdate(c, filter, update, opts)
 	if res.Err() != nil {
 		return nil, res.Err()
 	}

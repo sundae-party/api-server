@@ -32,21 +32,11 @@ type Store interface {
 
 	// Light store
 	PutLight(context.Context, *types.Light) (*types.Light, error)
+	UpdateLightState(ctx context.Context, light *types.Light) (*types.Light, error)
 	GetLightByName(context.Context, string) (*types.Light, error)
 	GetAllLight(context.Context) ([]types.Light, error)
 	GetLightByIntegration(context.Context, string) ([]types.Light, error)
 	DeleteLight(context.Context, *types.Light) (*types.Light, error)
-}
-
-// TODO: Create a genrique watchEvent type struct
-type EventMessage struct {
-	OperationType string
-	FullDocument  interface{}
-	Ns            ns
-}
-type ns struct {
-	Db   string
-	Coll string
 }
 
 type StoreOption struct {
