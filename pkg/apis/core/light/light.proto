@@ -14,6 +14,13 @@ service LightHandler {
 
     rpc GetAll (GetAllRequest) returns (stream Light);
     rpc WatchAll (GetAllRequest) returns (stream Light);
+    rpc SetDesired_state (SetStateRequest) returns (Light);
+    rpc setDesire (SetStateRequest) returns (Light);
+}
+
+message SetStateRequest {
+    string entityName = 1;
+    LightState state = 2;
 }
 
 message GetAllRequest {
@@ -28,6 +35,7 @@ message Light {
     string room = 5;
     LightState desired_state = 6;
     LightState state = 7;
+    string mutation = 8;
 }
 
 message LightColorRGB {

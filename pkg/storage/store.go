@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"sundae-party/api-server/pkg/apis/core/types"
+	store_type "sundae-party/api-server/pkg/storage/types"
 
 	mongo_store "sundae-party/api-server/pkg/storage/mongo"
 
@@ -20,17 +21,21 @@ var availableStoreType = map[string]string{
 }
 
 type Store interface {
-	GetEvent() chan string
+	GetEvent() chan store_type.StoreEvent
 
 	PutIntegration(context.Context, *types.Integration) (*types.Integration, error)
 	GetIntegration(context.Context, string) (*types.Integration, error)
 	DeleteIntegration(context.Context, *types.Integration) (*types.Integration, error)
 
-	PutEntity(context.Context, string, []byte) ([]byte, error)
-	GetEntityByName(context.Context, string) ([]byte, error)
-	GetAllEntities(context.Context) ([][]byte, error)
-	GetEntitiesByIntegration(context.Context, string) ([][]byte, error)
-	DeleteEntity(context.Context, string, []byte) ([]byte, error)
+	// Genric entity
+	GetAllEntities(ctx context.Context, kind string, integrationName string) ([]byte, error)
+
+	// Light store
+	PutLight(context.Context, *types.Light) (*types.Light, error)
+	GetLightByName(context.Context, string) (*types.Light, error)
+	GetAllLight(context.Context) ([]types.Light, error)
+	GetLightByIntegration(context.Context, string) ([]types.Light, error)
+	DeleteLight(context.Context, *types.Light) (*types.Light, error)
 }
 
 // TODO: Create a genrique watchEvent type struct

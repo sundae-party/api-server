@@ -47,6 +47,7 @@ message Integration {
     string url = 4;
     IntegrationState state = 5;
     repeated IntegrationService services = 6;
+    string mutation = 7;
 }
 
 message IntegrationState {

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"sundae-party/api-server/pkg/storage"
 )
@@ -88,12 +89,11 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 
 	// TODO: Send to the new client the entity list
-	// res, err := hub.store.GetAllEntities(r.Context())
-	// if err != nil {
-	// 	client.send <- []byte(err.Error())
-	// }
-
-	// client.send <- res
+	res, err := hub.store.GetAllEntities(r.Context(), "", "")
+	if err != nil {
+		client.send <- []byte(err.Error())
+	}
+	client.send <- res
 
 }
 
@@ -131,12 +131,20 @@ func (h *Hub) run() {
 				}
 			}
 		case event := <-h.store.GetEvent():
-			for client := range h.clients {
-				select {
-				case client.send <- []byte(event):
-				default:
-					close(client.send)
-					delete(h.clients, client)
+			if event.OperationType == "insert" || event.OperationType == "replace" || event.OperationType == "update" || event.OperationType == "rename" {
+				msg, err := bson.MarshalExtJSON(event.FullDocument, false, false)
+				if err != nil {
+					log.Println(err)
+				}
+
+				// Send the json encoded msg
+				for client := range h.clients {
+					select {
+					case client.send <- msg:
+					default:
+						close(client.send)
+						delete(h.clients, client)
+					}
 				}
 			}
 		}
