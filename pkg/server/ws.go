@@ -173,6 +173,7 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		// TODO: decode event message received and call the adquat action
 		c.hub.broadcast <- message
 	}
 }

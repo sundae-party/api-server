@@ -136,6 +136,7 @@ func (ms MongoStore) UpdateLightState(ctx context.Context, light *types.Light) (
 			log.Println("new light created") /// TODO: debug
 			return &updated, nil
 		}
+		return nil, err
 	}
 
 	// Light updated
