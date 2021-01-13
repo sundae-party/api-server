@@ -2,8 +2,9 @@ package storage
 
 import (
 	"context"
-	"sundae-party/api-server/pkg/apis/core/types"
 	"testing"
+
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
 )
 
 func TestNewStore(t *testing.T) {

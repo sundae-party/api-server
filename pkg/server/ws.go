@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 	"go.mongodb.org/mongo-driver/bson"
 
-	"sundae-party/api-server/pkg/storage"
+	"github.com/sundae-party/api-server/pkg/storage"
 )
 
 const (

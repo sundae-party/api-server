@@ -1,7 +1,7 @@
 package light
 
 import (
-	"sundae-party/api-server/pkg/apis/core/types"
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
 )
 
 var (

@@ -7,8 +7,8 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 
-	"sundae-party/api-server/pkg/apis/core/types"
-	"sundae-party/api-server/pkg/storage"
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
+	"github.com/sundae-party/api-server/pkg/storage"
 )
 
 type LightHandler struct {

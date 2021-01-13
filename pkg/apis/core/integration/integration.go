@@ -2,8 +2,9 @@ package integration
 
 import (
 	"context"
-	"sundae-party/api-server/pkg/apis/core/types"
-	"sundae-party/api-server/pkg/storage"
+
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
+	"github.com/sundae-party/api-server/pkg/storage"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

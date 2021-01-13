@@ -4,7 +4,7 @@ package types;
 
 import "integration.proto";
 
-option go_package = "sundae-party/api-server/pkg/apis/core/types";
+option go_package = "github.com/sundae-party/api-server/pkg/apis/core/types";
 
 service LightHandler {
     rpc Get (Light) returns (Light);

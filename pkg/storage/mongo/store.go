@@ -11,7 +11,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 
-	store_type "sundae-party/api-server/pkg/storage/types"
+	store_type "github.com/sundae-party/api-server/pkg/storage/types"
 )
 
 const (

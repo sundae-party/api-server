@@ -3,8 +3,9 @@ package mongo
 import (
 	"context"
 	"errors"
-	"sundae-party/api-server/pkg/apis/core/types"
 	"time"
+
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"

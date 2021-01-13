@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"sundae-party/api-server/pkg/apis/core/types"
-	"sundae-party/api-server/pkg/storage"
+
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
+	"github.com/sundae-party/api-server/pkg/storage"
 
 	"github.com/gorilla/mux"
 )

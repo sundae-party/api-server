@@ -5,13 +5,14 @@ import (
 	"log"
 	"math/rand"
 	"net"
-	"sundae-party/api-server/pkg/apis/core/integration"
-	"sundae-party/api-server/pkg/apis/core/light"
-	"sundae-party/api-server/pkg/apis/core/types"
-	"sundae-party/api-server/pkg/server"
 	"time"
 
-	"sundae-party/api-server/pkg/storage"
+	"github.com/sundae-party/api-server/pkg/apis/core/integration"
+	"github.com/sundae-party/api-server/pkg/apis/core/light"
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
+	"github.com/sundae-party/api-server/pkg/server"
+
+	"github.com/sundae-party/api-server/pkg/storage"
 
 	"google.golang.org/grpc"
 )

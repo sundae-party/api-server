@@ -1,4 +1,4 @@
-module sundae-party/api-server
+module github.com/sundae-party/api-server
 
 go 1.15
 

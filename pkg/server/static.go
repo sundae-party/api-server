@@ -14,7 +14,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"sundae-party/api-server/pkg/storage"
+	"github.com/sundae-party/api-server/pkg/storage"
 )
 
 type srvMode int64

@@ -3,7 +3,8 @@ package mongo
 import (
 	"context"
 	"log"
-	"sundae-party/api-server/pkg/apis/core/types"
+
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

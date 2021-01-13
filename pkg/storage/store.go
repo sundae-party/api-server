@@ -7,10 +7,11 @@ import (
 	"log"
 	"strings"
 
-	"sundae-party/api-server/pkg/apis/core/types"
-	store_type "sundae-party/api-server/pkg/storage/types"
+	store_type "github.com/sundae-party/api-server/pkg/storage/types"
 
-	mongo_store "sundae-party/api-server/pkg/storage/mongo"
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
+
+	mongo_store "github.com/sundae-party/api-server/pkg/storage/mongo"
 
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
