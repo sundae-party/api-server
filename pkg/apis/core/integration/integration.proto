@@ -8,13 +8,18 @@ service IntegrationHandler {
     rpc Create (Integration) returns (Integration);
     rpc Get (IntegrationServerRequest) returns (Integration);
     rpc Delete (Integration) returns (Integration);
-    rpc SetState (SetIntegrationStateRequest) returns (IntegrationState);
-    rpc CallService (CallIntegrationServiceRequest) returns (CallIntegrationServiceResponse);
-    rpc Connect (Integration) returns (stream CallIntegrationServiceRequest);
+
+    rpc SetState (SetIntegrationStateRequest) returns (Integration);
+    rpc SetDesiredState (SetIntegrationStateRequest) returns (Integration);
+
+    // Integration event format
+    rpc SubscribeEvents (Integration) returns (stream Integration);
+
     rpc StorePut (IntegrationStoreRequest) returns (IntegrationStoreRequest);
     rpc StoreGet (IntegrationStoreRequest) returns (IntegrationStoreRequest);
 }
 
+// Persistent storage in the api-server store
 message IntegrationStoreRequest {
     string integration_name = 1;
     string key = 2;
@@ -25,16 +30,7 @@ message IntegrationServerRequest {
     string integration_name = 1;
 }
 
-message CallIntegrationServiceRequest {
-    string integration_name = 1;
-    IntegrationService service = 5;
-}
-
-message CallIntegrationServiceResponse {
-    bool success = 1;
-    string error = 2;
-}
-
+// Set state or desired state
 message SetIntegrationStateRequest {
     string integration_name = 1;
     IntegrationState state = 5;
@@ -51,9 +47,20 @@ message Integration {
 }
 
 message IntegrationState {
-	bool connected = 1;
+    bool connected = 1;
+    // Service name to execute in desired state, can be empty
+    // Service name curently executed in the state, can be empty
+    string service_name = 2;
+    // If an integration executing a service service_status should be set to working otherwise idle should be used
+    oneof service_status {
+        string idle = 3;
+        string working = 4;
+    }
+    // Data if needed for service
+    string service_data = 5;
 }
 
+// service will be call by set desired state of an integration
 message IntegrationService {
     string name = 1;
     string data = 2;

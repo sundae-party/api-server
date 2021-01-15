@@ -130,7 +130,7 @@ func (h *Hub) run() {
 					delete(h.clients, client)
 				}
 			}
-		case event := <-h.store.GetEvent():
+		case event := <-h.store.GetAllEvent():
 			if event.OperationType == "insert" || event.OperationType == "replace" || event.OperationType == "update" || event.OperationType == "rename" {
 				msg, err := bson.MarshalExtJSON(event.FullDocument, false, false)
 				if err != nil {

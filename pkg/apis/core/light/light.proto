@@ -14,8 +14,8 @@ service LightHandler {
 
     rpc GetAll (GetAllRequest) returns (stream Light);
     rpc WatchAll (GetAllRequest) returns (stream Light);
-    rpc SetDesired_state (SetStateRequest) returns (Light);
-    rpc setDesire (SetStateRequest) returns (Light);
+    rpc SetDesiredState (SetStateRequest) returns (Light);
+    rpc setState (SetStateRequest) returns (Light);
 }
 
 message SetStateRequest {

@@ -22,8 +22,13 @@ const (
 type MongoStore struct {
 	Client   *mongo.Client
 	DataBase *mongo.Database
-	Event    chan store_type.StoreEvent
-	Exit     chan os.Signal
+	// Events struct {
+	//	allJsonEvents chan []byte
+	//	integrationEvents chan Integration
+	//  lightEvents chan Light
+	// }
+	Event chan store_type.StoreEvent
+	Exit  chan os.Signal
 }
 
 func NewStore(c context.Context, DbName string, uri string, creds options.Credential) (*MongoStore, error) {
@@ -128,8 +133,4 @@ func WatchEvent(ctx context.Context, s *MongoStore) error {
 		}
 	}()
 	return nil
-}
-
-func (ms MongoStore) GetEvent() chan store_type.StoreEvent {
-	return ms.Event
 }

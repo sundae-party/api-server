@@ -32,12 +32,11 @@ func (lh LightHandler) GetAll(*types.GetAllRequest, types.LightHandler_GetAllSer
 	return status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
 func (lh LightHandler) WatchAll(r *types.GetAllRequest, stream types.LightHandler_WatchAllServer) error {
-	lh.Store.GetEvent()
 
 	go func() {
 		for {
 			select {
-			case event := <-lh.Store.GetEvent():
+			case event := <-lh.Store.GetAllEvent():
 				log.Printf("%s on %s", event.OperationType, event.Ns.Coll)
 				// stream.Send(event)
 			}

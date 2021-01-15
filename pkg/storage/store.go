@@ -22,7 +22,8 @@ var availableStoreType = map[string]string{
 }
 
 type Store interface {
-	GetEvent() chan store_type.StoreEvent
+	GetAllEvent() chan store_type.StoreEvent
+	GetIntegrationEvent() chan types.Integration
 
 	PutIntegration(context.Context, *types.Integration) (*types.Integration, error)
 	GetIntegration(context.Context, string) (*types.Integration, error)

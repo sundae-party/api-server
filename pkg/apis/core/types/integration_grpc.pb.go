@@ -20,9 +20,10 @@ type IntegrationHandlerClient interface {
 	Create(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error)
 	Get(ctx context.Context, in *IntegrationServerRequest, opts ...grpc.CallOption) (*Integration, error)
 	Delete(ctx context.Context, in *Integration, opts ...grpc.CallOption) (*Integration, error)
-	SetState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*IntegrationState, error)
-	CallService(ctx context.Context, in *CallIntegrationServiceRequest, opts ...grpc.CallOption) (*CallIntegrationServiceResponse, error)
-	Connect(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_ConnectClient, error)
+	SetState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*Integration, error)
+	SetDesiredState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*Integration, error)
+	// Integration event format
+	SubscribeEvents(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_SubscribeEventsClient, error)
 	StorePut(ctx context.Context, in *IntegrationStoreRequest, opts ...grpc.CallOption) (*IntegrationStoreRequest, error)
 	StoreGet(ctx context.Context, in *IntegrationStoreRequest, opts ...grpc.CallOption) (*IntegrationStoreRequest, error)
 }
@@ -62,8 +63,8 @@ func (c *integrationHandlerClient) Delete(ctx context.Context, in *Integration, 
 	return out, nil
 }
 
-func (c *integrationHandlerClient) SetState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*IntegrationState, error) {
-	out := new(IntegrationState)
+func (c *integrationHandlerClient) SetState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*Integration, error) {
+	out := new(Integration)
 	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/SetState", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -71,21 +72,21 @@ func (c *integrationHandlerClient) SetState(ctx context.Context, in *SetIntegrat
 	return out, nil
 }
 
-func (c *integrationHandlerClient) CallService(ctx context.Context, in *CallIntegrationServiceRequest, opts ...grpc.CallOption) (*CallIntegrationServiceResponse, error) {
-	out := new(CallIntegrationServiceResponse)
-	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/CallService", in, out, opts...)
+func (c *integrationHandlerClient) SetDesiredState(ctx context.Context, in *SetIntegrationStateRequest, opts ...grpc.CallOption) (*Integration, error) {
+	out := new(Integration)
+	err := c.cc.Invoke(ctx, "/types.IntegrationHandler/SetDesiredState", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *integrationHandlerClient) Connect(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_ConnectClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_IntegrationHandler_serviceDesc.Streams[0], "/types.IntegrationHandler/Connect", opts...)
+func (c *integrationHandlerClient) SubscribeEvents(ctx context.Context, in *Integration, opts ...grpc.CallOption) (IntegrationHandler_SubscribeEventsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_IntegrationHandler_serviceDesc.Streams[0], "/types.IntegrationHandler/SubscribeEvents", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &integrationHandlerConnectClient{stream}
+	x := &integrationHandlerSubscribeEventsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -95,17 +96,17 @@ func (c *integrationHandlerClient) Connect(ctx context.Context, in *Integration,
 	return x, nil
 }
 
-type IntegrationHandler_ConnectClient interface {
-	Recv() (*CallIntegrationServiceRequest, error)
+type IntegrationHandler_SubscribeEventsClient interface {
+	Recv() (*Integration, error)
 	grpc.ClientStream
 }
 
-type integrationHandlerConnectClient struct {
+type integrationHandlerSubscribeEventsClient struct {
 	grpc.ClientStream
 }
 
-func (x *integrationHandlerConnectClient) Recv() (*CallIntegrationServiceRequest, error) {
-	m := new(CallIntegrationServiceRequest)
+func (x *integrationHandlerSubscribeEventsClient) Recv() (*Integration, error) {
+	m := new(Integration)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -137,9 +138,10 @@ type IntegrationHandlerServer interface {
 	Create(context.Context, *Integration) (*Integration, error)
 	Get(context.Context, *IntegrationServerRequest) (*Integration, error)
 	Delete(context.Context, *Integration) (*Integration, error)
-	SetState(context.Context, *SetIntegrationStateRequest) (*IntegrationState, error)
-	CallService(context.Context, *CallIntegrationServiceRequest) (*CallIntegrationServiceResponse, error)
-	Connect(*Integration, IntegrationHandler_ConnectServer) error
+	SetState(context.Context, *SetIntegrationStateRequest) (*Integration, error)
+	SetDesiredState(context.Context, *SetIntegrationStateRequest) (*Integration, error)
+	// Integration event format
+	SubscribeEvents(*Integration, IntegrationHandler_SubscribeEventsServer) error
 	StorePut(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error)
 	StoreGet(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error)
 	mustEmbedUnimplementedIntegrationHandlerServer()
@@ -158,14 +160,14 @@ func (UnimplementedIntegrationHandlerServer) Get(context.Context, *IntegrationSe
 func (UnimplementedIntegrationHandlerServer) Delete(context.Context, *Integration) (*Integration, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) SetState(context.Context, *SetIntegrationStateRequest) (*IntegrationState, error) {
+func (UnimplementedIntegrationHandlerServer) SetState(context.Context, *SetIntegrationStateRequest) (*Integration, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) CallService(context.Context, *CallIntegrationServiceRequest) (*CallIntegrationServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CallService not implemented")
+func (UnimplementedIntegrationHandlerServer) SetDesiredState(context.Context, *SetIntegrationStateRequest) (*Integration, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetDesiredState not implemented")
 }
-func (UnimplementedIntegrationHandlerServer) Connect(*Integration, IntegrationHandler_ConnectServer) error {
-	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
+func (UnimplementedIntegrationHandlerServer) SubscribeEvents(*Integration, IntegrationHandler_SubscribeEventsServer) error {
+	return status.Errorf(codes.Unimplemented, "method SubscribeEvents not implemented")
 }
 func (UnimplementedIntegrationHandlerServer) StorePut(context.Context, *IntegrationStoreRequest) (*IntegrationStoreRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StorePut not implemented")
@@ -258,42 +260,42 @@ func _IntegrationHandler_SetState_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IntegrationHandler_CallService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CallIntegrationServiceRequest)
+func _IntegrationHandler_SetDesiredState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetIntegrationStateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IntegrationHandlerServer).CallService(ctx, in)
+		return srv.(IntegrationHandlerServer).SetDesiredState(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/types.IntegrationHandler/CallService",
+		FullMethod: "/types.IntegrationHandler/SetDesiredState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IntegrationHandlerServer).CallService(ctx, req.(*CallIntegrationServiceRequest))
+		return srv.(IntegrationHandlerServer).SetDesiredState(ctx, req.(*SetIntegrationStateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IntegrationHandler_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _IntegrationHandler_SubscribeEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(Integration)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(IntegrationHandlerServer).Connect(m, &integrationHandlerConnectServer{stream})
+	return srv.(IntegrationHandlerServer).SubscribeEvents(m, &integrationHandlerSubscribeEventsServer{stream})
 }
 
-type IntegrationHandler_ConnectServer interface {
-	Send(*CallIntegrationServiceRequest) error
+type IntegrationHandler_SubscribeEventsServer interface {
+	Send(*Integration) error
 	grpc.ServerStream
 }
 
-type integrationHandlerConnectServer struct {
+type integrationHandlerSubscribeEventsServer struct {
 	grpc.ServerStream
 }
 
-func (x *integrationHandlerConnectServer) Send(m *CallIntegrationServiceRequest) error {
+func (x *integrationHandlerSubscribeEventsServer) Send(m *Integration) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -354,8 +356,8 @@ var _IntegrationHandler_serviceDesc = grpc.ServiceDesc{
 			Handler:    _IntegrationHandler_SetState_Handler,
 		},
 		{
-			MethodName: "CallService",
-			Handler:    _IntegrationHandler_CallService_Handler,
+			MethodName: "SetDesiredState",
+			Handler:    _IntegrationHandler_SetDesiredState_Handler,
 		},
 		{
 			MethodName: "StorePut",
@@ -368,8 +370,8 @@ var _IntegrationHandler_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Connect",
-			Handler:       _IntegrationHandler_Connect_Handler,
+			StreamName:    "SubscribeEvents",
+			Handler:       _IntegrationHandler_SubscribeEvents_Handler,
 			ServerStreams: true,
 		},
 	},

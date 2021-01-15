@@ -24,7 +24,7 @@ type LightHandlerClient interface {
 	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (LightHandler_GetAllClient, error)
 	WatchAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (LightHandler_WatchAllClient, error)
 	SetDesiredState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*Light, error)
-	SetDesire(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*Light, error)
+	SetState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*Light, error)
 }
 
 type lightHandlerClient struct {
@@ -137,16 +137,16 @@ func (x *lightHandlerWatchAllClient) Recv() (*Light, error) {
 
 func (c *lightHandlerClient) SetDesiredState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*Light, error) {
 	out := new(Light)
-	err := c.cc.Invoke(ctx, "/types.LightHandler/SetDesired_state", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/types.LightHandler/SetDesiredState", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *lightHandlerClient) SetDesire(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*Light, error) {
+func (c *lightHandlerClient) SetState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*Light, error) {
 	out := new(Light)
-	err := c.cc.Invoke(ctx, "/types.LightHandler/setDesire", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/types.LightHandler/setState", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ type LightHandlerServer interface {
 	GetAll(*GetAllRequest, LightHandler_GetAllServer) error
 	WatchAll(*GetAllRequest, LightHandler_WatchAllServer) error
 	SetDesiredState(context.Context, *SetStateRequest) (*Light, error)
-	SetDesire(context.Context, *SetStateRequest) (*Light, error)
+	SetState(context.Context, *SetStateRequest) (*Light, error)
 	mustEmbedUnimplementedLightHandlerServer()
 }
 
@@ -193,8 +193,8 @@ func (UnimplementedLightHandlerServer) WatchAll(*GetAllRequest, LightHandler_Wat
 func (UnimplementedLightHandlerServer) SetDesiredState(context.Context, *SetStateRequest) (*Light, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDesiredState not implemented")
 }
-func (UnimplementedLightHandlerServer) SetDesire(context.Context, *SetStateRequest) (*Light, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetDesire not implemented")
+func (UnimplementedLightHandlerServer) SetState(context.Context, *SetStateRequest) (*Light, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
 }
 func (UnimplementedLightHandlerServer) mustEmbedUnimplementedLightHandlerServer() {}
 
@@ -333,7 +333,7 @@ func _LightHandler_SetDesiredState_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/types.LightHandler/SetDesired_state",
+		FullMethod: "/types.LightHandler/SetDesiredState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LightHandlerServer).SetDesiredState(ctx, req.(*SetStateRequest))
@@ -341,20 +341,20 @@ func _LightHandler_SetDesiredState_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _LightHandler_SetDesire_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LightHandler_SetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetStateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LightHandlerServer).SetDesire(ctx, in)
+		return srv.(LightHandlerServer).SetState(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/types.LightHandler/setDesire",
+		FullMethod: "/types.LightHandler/setState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LightHandlerServer).SetDesire(ctx, req.(*SetStateRequest))
+		return srv.(LightHandlerServer).SetState(ctx, req.(*SetStateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -380,12 +380,12 @@ var _LightHandler_serviceDesc = grpc.ServiceDesc{
 			Handler:    _LightHandler_Delete_Handler,
 		},
 		{
-			MethodName: "SetDesired_state",
+			MethodName: "SetDesiredState",
 			Handler:    _LightHandler_SetDesiredState_Handler,
 		},
 		{
-			MethodName: "setDesire",
-			Handler:    _LightHandler_SetDesire_Handler,
+			MethodName: "setState",
+			Handler:    _LightHandler_SetState_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -2,6 +2,7 @@ package integration
 
 import (
 	"context"
+	"log"
 
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
 	"github.com/sundae-party/api-server/pkg/storage"
@@ -12,8 +13,7 @@ import (
 
 type IntegrationHandler struct {
 	types.UnimplementedIntegrationHandlerServer
-	Store        storage.Store
-	ServiceEvent chan *types.CallIntegrationServiceRequest
+	Store storage.Store
 }
 
 func (ih IntegrationHandler) Create(ctx context.Context, i *types.Integration) (*types.Integration, error) {
@@ -37,7 +37,7 @@ func (ih IntegrationHandler) Delete(ctx context.Context, id *types.Integration) 
 	}
 	return resp, nil
 }
-func (ih IntegrationHandler) SetState(ctx context.Context, sr *types.SetIntegrationStateRequest) (*types.IntegrationState, error) {
+func (ih IntegrationHandler) SetState(ctx context.Context, sr *types.SetIntegrationStateRequest) (*types.Integration, error) {
 	i, err := ih.Store.GetIntegration(ctx, sr.IntegrationName)
 	if err != nil {
 		return nil, err
@@ -47,34 +47,30 @@ func (ih IntegrationHandler) SetState(ctx context.Context, sr *types.SetIntegrat
 		return nil, err
 	}
 
-	return ui.State, nil
+	return ui, nil
 }
 
-// TODO: how to contact desired integration
-func (ih IntegrationHandler) CallService(ctx context.Context, svc *types.CallIntegrationServiceRequest) (*types.CallIntegrationServiceResponse, error) {
-	ih.ServiceEvent <- svc
-	// TODO: how to get Call service response status
-	return &types.CallIntegrationServiceResponse{Success: true}, nil
-	// svc.IntegrationName
-	// svc.Service.Name
-	// svc.Service.Data
-	// return nil, status.Errorf(codes.Unimplemented, "method CallService not implemented")
-}
-
-func (ih IntegrationHandler) Connect(i *types.Integration, stream types.IntegrationHandler_ConnectServer) error {
-	// TODO: Need to create new context, no context in param
-	ctx := context.Background()
-	_, err := ih.Store.PutIntegration(ctx, i)
+func (ih IntegrationHandler) SetDesiredState(ctx context.Context, sr *types.SetIntegrationStateRequest) (*types.Integration, error) {
+	i, err := ih.Store.GetIntegration(ctx, sr.IntegrationName)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	// Watch and send service call event only for given integration
-	for event := range ih.ServiceEvent {
-		if event.IntegrationName == i.Name {
-			stream.Send(event)
+	ui, err := ih.Store.PutIntegration(ctx, i)
+	if err != nil {
+		return nil, err
+	}
+
+	return ui, nil
+}
+
+func (ih IntegrationHandler) SubscribeEvents(integration *types.Integration, stream types.IntegrationHandler_SubscribeEventsServer) error {
+	select {
+	case event := <-ih.Store.GetIntegrationEvent():
+		err := stream.Send(&event)
+		if err != nil {
+			log.Printf("Integration event emit error: %s", err)
 		}
 	}
-	// TODO: Check for stream connexion close
 	return nil
 }
 
