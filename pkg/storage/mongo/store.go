@@ -11,6 +11,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 
+	"github.com/sundae-party/api-server/pkg/apis/core/types"
 	store_type "github.com/sundae-party/api-server/pkg/storage/types"
 )
 
@@ -27,8 +28,9 @@ type MongoStore struct {
 	//	integrationEvents chan Integration
 	//  lightEvents chan Light
 	// }
-	Event chan store_type.StoreEvent
-	Exit  chan os.Signal
+	Event            chan store_type.StoreEvent
+	IntegrationEvent chan types.Integration
+	Exit             chan os.Signal
 }
 
 func NewStore(c context.Context, DbName string, uri string, creds options.Credential) (*MongoStore, error) {
@@ -56,10 +58,11 @@ func NewStore(c context.Context, DbName string, uri string, creds options.Creden
 	}
 
 	ms := &MongoStore{
-		Client:   client,
-		DataBase: db,
-		Event:    make(chan store_type.StoreEvent),
-		Exit:     make(chan os.Signal),
+		Client:           client,
+		DataBase:         db,
+		Event:            make(chan store_type.StoreEvent),
+		IntegrationEvent: make(chan types.Integration),
+		Exit:             make(chan os.Signal),
 	}
 	// signal.Notify(ms.Exit, syscall.SIGINT, syscall.SIGTERM)
 
@@ -132,5 +135,20 @@ func WatchEvent(ctx context.Context, s *MongoStore) error {
 			// log.Println(cs.Current.String())
 		}
 	}()
+
+	// Integration event
+	// go func() {
+	// 	for {
+	// 		log.Println("wait")
+	// 		select {
+	// 		case event := <-s.Event:
+	// 			log.Println(event.Ns.Coll)
+	// 			if event.Ns.Coll == integrationCollection {
+	// 				s.IntegrationEvent <- event.FullDocument.(types.Integration)
+	// 			}
+	// 		}
+	// 	}
+	// }()
+
 	return nil
 }

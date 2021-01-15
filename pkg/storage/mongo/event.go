@@ -1,8 +1,11 @@
 package mongo
 
 import (
-	"github.com/sundae-party/api-server/pkg/apis/core/types"
+	"context"
+
 	store_type "github.com/sundae-party/api-server/pkg/storage/types"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func (ms MongoStore) GetAllEvent() chan store_type.StoreEvent {
@@ -12,15 +15,13 @@ func (ms MongoStore) GetAllEvent() chan store_type.StoreEvent {
 // TODO: GetIntegrationEvent
 // Should watch for store event
 // for each of them define with the mutation field in the full document fild the object type (Integration, light, sensor, ...)
-func (ms MongoStore) GetIntegrationEvent() chan types.Integration {
-	integrationChan := make(chan types.Integration)
-	go func() {
-		select {
-		case event := <-ms.GetAllEvent():
-			if event.Ns.Coll == integrationCollection {
-				integrationChan <- event.FullDocument.(types.Integration)
-			}
-		}
-	}()
-	return integrationChan
+func (ms MongoStore) GetIntegrationEvent(ctx context.Context) (*mongo.ChangeStream, error) {
+
+	cs, err := ms.DataBase.Collection("integrations").Watch(ctx, mongo.Pipeline{}, options.ChangeStream().SetFullDocument(options.UpdateLookup))
+	if err != nil {
+		return nil, err
+	}
+
+	return cs, nil
+
 }

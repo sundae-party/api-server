@@ -42,8 +42,9 @@ message Integration {
     string version = 3;
     string url = 4;
     IntegrationState state = 5;
-    repeated IntegrationService services = 6;
-    string mutation = 7;
+    IntegrationState desired_state = 6;
+    repeated IntegrationService services = 7;
+    string mutation = 8;
 }
 
 message IntegrationState {
@@ -52,12 +53,9 @@ message IntegrationState {
     // Service name curently executed in the state, can be empty
     string service_name = 2;
     // If an integration executing a service service_status should be set to working otherwise idle should be used
-    oneof service_status {
-        string idle = 3;
-        string working = 4;
-    }
+    bool service_idle = 3;
     // Data if needed for service
-    string service_data = 5;
+    string service_data = 4;
 }
 
 // service will be call by set desired state of an integration

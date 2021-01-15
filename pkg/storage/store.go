@@ -13,6 +13,7 @@ import (
 
 	mongo_store "github.com/sundae-party/api-server/pkg/storage/mongo"
 
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -23,7 +24,7 @@ var availableStoreType = map[string]string{
 
 type Store interface {
 	GetAllEvent() chan store_type.StoreEvent
-	GetIntegrationEvent() chan types.Integration
+	GetIntegrationEvent(ctx context.Context) (*mongo.ChangeStream, error)
 
 	PutIntegration(context.Context, *types.Integration) (*types.Integration, error)
 	GetIntegration(context.Context, string) (*types.Integration, error)
