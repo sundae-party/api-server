@@ -14,13 +14,14 @@ service LightHandler {
 
     rpc GetAll (GetAllRequest) returns (stream Light);
     rpc WatchAll (GetAllRequest) returns (stream Light);
-    rpc SetDesiredState (SetStateRequest) returns (Light);
-    rpc setState (SetStateRequest) returns (Light);
+    rpc SetDesiredState (SetLightStateRequest) returns (Light);
+    rpc setState (SetLightStateRequest) returns (Light);
 }
 
-message SetStateRequest {
-    string entityName = 1;
-    LightState state = 2;
+message SetLightStateRequest {
+    string lightName = 1;
+    string integrationName = 2;
+    LightState state = 3;
 }
 
 message GetAllRequest {
@@ -54,4 +55,5 @@ message LightState {
         LONG = 1;
     };
     FlashMode flashMode = 5;
+    int32 transition = 6;
 }

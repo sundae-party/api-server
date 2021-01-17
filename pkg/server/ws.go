@@ -136,7 +136,6 @@ func (h *Hub) run() {
 				if err != nil {
 					log.Println(err)
 				}
-
 				// Send the json encoded msg
 				for client := range h.clients {
 					select {

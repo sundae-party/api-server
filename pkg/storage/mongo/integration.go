@@ -8,6 +8,7 @@ import (
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -23,7 +24,7 @@ func (ms MongoStore) PutIntegration(ctx context.Context, newIntegration *types.I
 	// Select an integration with it's unique name
 	filter := bson.D{{Key: "name", Value: newIntegration.Name}}
 
-	newIntegration.Mutation = "entity"
+	newIntegration.Mutation = "integration"
 
 	// Convert intergration to bson
 	replacment, err := bson.Marshal(newIntegration)
@@ -87,4 +88,76 @@ func (ms MongoStore) DeleteIntegration(ctx context.Context, deleteIntegration *t
 	res.Decode(deleted)
 
 	return deleted, nil
+}
+
+func (ms MongoStore) UpdateIntegrationState(ctx context.Context, integration *types.Integration) (*types.Integration, error) {
+
+	c, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+
+	collection := ms.DataBase.Collection(integrationCollection)
+
+	// Select the integration with it's unique name
+	filter := bson.D{
+		{Key: "name", Value: integration.Name},
+	}
+
+	// Return new val insted old val
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+
+	// Convert integration state to bson object
+	update := bson.M{"$set": bson.M{"state": integration.State}}
+
+	res := collection.FindOneAndUpdate(c, filter, update, opts)
+	if res.Err() != nil {
+		if res.Err().Error() == mongo.ErrNoDocuments.Error() {
+			// Try to create the new integration
+			res, err := ms.PutIntegration(ctx, integration)
+			if err != nil {
+				return nil, err
+			}
+			return res, nil
+		} else {
+			return nil, res.Err()
+		}
+	}
+
+	// integration updated
+	var updated types.Integration
+	err := res.Decode(&updated)
+	if err != nil {
+		return nil, err
+	}
+	return &updated, nil
+}
+
+func (ms MongoStore) UpdateIntegrationDesiredState(ctx context.Context, integration *types.Integration) (*types.Integration, error) {
+	c, cancel := context.WithTimeout(ctx, time.Second*1)
+	defer cancel()
+
+	collection := ms.DataBase.Collection(integrationCollection)
+
+	// Select the integration with it's unique name
+	filter := bson.D{
+		{Key: "name", Value: integration.Name},
+	}
+
+	// Return new val insted old val
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+
+	// Convert integration state to bson object
+	update := bson.M{"$set": bson.M{"desiredstate": integration.DesiredState}}
+
+	res := collection.FindOneAndUpdate(c, filter, update, opts)
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+
+	// integration updated
+	var updated types.Integration
+	err := res.Decode(&updated)
+	if err != nil {
+		return nil, err
+	}
+	return &updated, nil
 }

@@ -3,7 +3,6 @@ package mongo
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,12 +11,13 @@ import (
 )
 
 // PutEntity create or replace an entity in the store
-func (ms MongoStore) putEntity(ctx context.Context, integrationName string, entityName string, entity []byte) (*mongo.SingleResult, error) {
+func (ms MongoStore) putEntity(ctx context.Context, key string, entity []byte) (*mongo.SingleResult, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
 
-	if integrationName == "" || entityName == "" {
-		return nil, errors.New("Cannot insert this entity, Integration name or entity name is empty")
+	integrationName, entityName, err := decodeKey(key)
+	if err != nil {
+		return nil, err
 	}
 
 	collection := ms.DataBase.Collection(entityCollection)
@@ -82,7 +82,7 @@ func (ms MongoStore) getAllEntities(c context.Context, kind string, integrationN
 	filter := bson.D{}
 
 	if kind != "" {
-		filter = append(filter, bson.E{Key: "kind", Value: kind})
+		filter = append(filter, bson.E{Key: "mutation", Value: kind})
 	}
 	if integrationName != "" {
 		filter = append(filter, bson.E{Key: "integration.name", Value: integrationName})
@@ -107,7 +107,7 @@ func (ms MongoStore) GetAllEntities(c context.Context, kind string, integrationN
 	filter := bson.D{}
 
 	if kind != "" {
-		filter = append(filter, bson.E{Key: "kind", Value: kind})
+		filter = append(filter, bson.E{Key: "mutation", Value: kind})
 	}
 	if integrationName != "" {
 		filter = append(filter, bson.E{Key: "integration.name", Value: integrationName})
@@ -134,9 +134,14 @@ func (ms MongoStore) GetAllEntities(c context.Context, kind string, integrationN
 }
 
 // deleteEntity delete an entity in the store
-func (ms MongoStore) deleteEntity(ctx context.Context, integrationName string, entityName string) (*mongo.SingleResult, error) {
+func (ms MongoStore) deleteEntity(ctx context.Context, key string) (*mongo.SingleResult, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
+
+	integrationName, entityName, err := decodeKey(key)
+	if err != nil {
+		return nil, err
+	}
 
 	collection := ms.DataBase.Collection(entityCollection)
 
@@ -154,9 +159,14 @@ func (ms MongoStore) deleteEntity(ctx context.Context, integrationName string, e
 	return res, nil
 }
 
-func (ms MongoStore) updateEntityState(ctx context.Context, integrationName string, entityName string, state bson.M) (*mongo.SingleResult, error) {
+func (ms MongoStore) updateEntityState(ctx context.Context, key string, state bson.M) (*mongo.SingleResult, error) {
 	c, cancel := context.WithTimeout(ctx, time.Second*1)
 	defer cancel()
+
+	integrationName, entityName, err := decodeKey(key)
+	if err != nil {
+		return nil, err
+	}
 
 	collection := ms.DataBase.Collection(entityCollection)
 

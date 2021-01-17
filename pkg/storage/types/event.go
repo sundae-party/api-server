@@ -21,3 +21,12 @@ type IntegrationEvent struct {
 		Coll string
 	}
 }
+
+type LightEvent struct {
+	OperationType string
+	FullDocument  types.Light
+	Ns            struct {
+		Db   string
+		Coll string
+	}
+}

@@ -45,4 +45,13 @@ curl -X POST -H "Content-Type: application/json" \
     --cert cli.pem \
     -d '{"name": "Hue", "documentation": "https://sundae/doc/hue", "version": "v1.0.1", "url": "https://github.com/sundae-party/integration/hue"}' \
     https://localhost/api/integration
-````
+```
+
+```bash
+curl -X POST -H "Content-Type: application/json" \
+    --cacert ca.pem \
+    --key cli.key \
+    --cert cli.pem \
+    -d '{ "name" : "corridor-sdb_dimmer", "integration" : { "name" : "MQTT" }, "desiredstate" : { "brightness" : 0} }'\
+    https://localhost/api/light/desiredstate
+```

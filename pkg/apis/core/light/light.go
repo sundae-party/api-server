@@ -4,11 +4,9 @@ import (
 	context "context"
 	"log"
 
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
-
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
 	"github.com/sundae-party/api-server/pkg/storage"
+	store_type "github.com/sundae-party/api-server/pkg/storage/types"
 )
 
 type LightHandler struct {
@@ -28,19 +26,62 @@ func (lh LightHandler) Update(ctx context.Context, l *types.Light) (*types.Light
 func (lh LightHandler) Delete(ctx context.Context, l *types.Light) (*types.Light, error) {
 	return lh.Store.DeleteLight(ctx, l)
 }
-func (lh LightHandler) GetAll(*types.GetAllRequest, types.LightHandler_GetAllServer) error {
-	return status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+func (lh LightHandler) GetAll(_ *types.GetAllRequest, stream types.LightHandler_GetAllServer) error {
+	lights, err := lh.Store.GetAllLight(stream.Context())
+	if err != nil {
+		return nil
+	}
+	for _, light := range lights {
+		stream.Send(&light)
+	}
+	return nil
 }
 func (lh LightHandler) WatchAll(r *types.GetAllRequest, stream types.LightHandler_WatchAllServer) error {
+	cs, err := lh.Store.GetLightEvent(stream.Context())
+	if err != nil {
+		return err
+	}
 
-	go func() {
-		for {
-			select {
-			case event := <-lh.Store.GetAllEvent():
-				log.Printf("%s on %s", event.OperationType, event.Ns.Coll)
-				// stream.Send(event)
+	for {
+		select {
+		case <-stream.Context().Done():
+			cs.Close(stream.Context())
+			return nil
+		default:
+			if cs.Next(stream.Context()) {
+				var event store_type.LightEvent
+				err := cs.Decode(&event)
+				if err != nil {
+					log.Println("Mongo store -- decode mongo change stream integration event error:")
+					log.Println(err)
+				}
+				err = stream.Send(&event.FullDocument)
+				if err != nil {
+					log.Printf("Integration event emit error: %s", err)
+				}
 			}
 		}
-	}()
-	return nil
+	}
+}
+
+func (lh LightHandler) SetDesiredState(ctx context.Context, lsr *types.SetLightStateRequest) (*types.Light, error) {
+	lightRequest := &types.Light{
+		Name: lsr.LightName,
+		Integration: &types.Integration{
+			Name: lsr.IntegrationName,
+		},
+		DesiredState: lsr.State,
+	}
+	return lh.Store.UpdateLightStateDesiredState(ctx, lightRequest)
+}
+func (lh LightHandler) SetState(ctx context.Context, lsr *types.SetLightStateRequest) (*types.Light, error) {
+	lightRequest := &types.Light{
+		Name: lsr.LightName,
+		Integration: &types.Integration{
+			Name: lsr.IntegrationName,
+		},
+		DesiredState: lsr.State,
+	}
+	return lh.Store.UpdateLightState(ctx, lightRequest)
+
 }

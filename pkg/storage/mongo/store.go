@@ -136,19 +136,5 @@ func WatchEvent(ctx context.Context, s *MongoStore) error {
 		}
 	}()
 
-	// Integration event
-	// go func() {
-	// 	for {
-	// 		log.Println("wait")
-	// 		select {
-	// 		case event := <-s.Event:
-	// 			log.Println(event.Ns.Coll)
-	// 			if event.Ns.Coll == integrationCollection {
-	// 				s.IntegrationEvent <- event.FullDocument.(types.Integration)
-	// 			}
-	// 		}
-	// 	}
-	// }()
-
 	return nil
 }

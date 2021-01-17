@@ -19,18 +19,10 @@ type IntegrationHandler struct {
 }
 
 func (ih IntegrationHandler) Create(ctx context.Context, i *types.Integration) (*types.Integration, error) {
-	ni, err := ih.Store.PutIntegration(ctx, i)
-	if err != nil {
-		return nil, err
-	}
-	return ni, nil
+	return ih.Store.PutIntegration(ctx, i)
 }
 func (ih IntegrationHandler) Get(ctx context.Context, ir *types.IntegrationServerRequest) (*types.Integration, error) {
-	i, err := ih.Store.GetIntegration(ctx, ir.IntegrationName)
-	if err != nil {
-		return nil, err
-	}
-	return i, nil
+	return ih.Store.GetIntegration(ctx, ir.IntegrationName)
 }
 func (ih IntegrationHandler) Delete(ctx context.Context, id *types.Integration) (*types.Integration, error) {
 	resp, err := ih.Store.DeleteIntegration(ctx, id)
@@ -40,29 +32,19 @@ func (ih IntegrationHandler) Delete(ctx context.Context, id *types.Integration) 
 	return resp, nil
 }
 func (ih IntegrationHandler) SetState(ctx context.Context, sr *types.SetIntegrationStateRequest) (*types.Integration, error) {
-	i, err := ih.Store.GetIntegration(ctx, sr.IntegrationName)
-	if err != nil {
-		return nil, err
+	intergration := &types.Integration{
+		Name:  sr.IntegrationName,
+		State: sr.State,
 	}
-	ui, err := ih.Store.PutIntegration(ctx, i)
-	if err != nil {
-		return nil, err
-	}
-
-	return ui, nil
+	return ih.Store.UpdateIntegrationState(ctx, intergration)
 }
 
 func (ih IntegrationHandler) SetDesiredState(ctx context.Context, sr *types.SetIntegrationStateRequest) (*types.Integration, error) {
-	i, err := ih.Store.GetIntegration(ctx, sr.IntegrationName)
-	if err != nil {
-		return nil, err
+	intergration := &types.Integration{
+		Name:         sr.IntegrationName,
+		DesiredState: sr.State,
 	}
-	ui, err := ih.Store.PutIntegration(ctx, i)
-	if err != nil {
-		return nil, err
-	}
-
-	return ui, nil
+	return ih.Store.UpdateIntegrationDesiredState(ctx, intergration)
 }
 
 func (ih IntegrationHandler) SubscribeEvents(integration *types.Integration, stream types.IntegrationHandler_SubscribeEventsServer) error {

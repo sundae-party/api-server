@@ -23,19 +23,25 @@ var availableStoreType = map[string]string{
 }
 
 type Store interface {
+	// Event
 	GetAllEvent() chan store_type.StoreEvent
 	GetIntegrationEvent(ctx context.Context) (*mongo.ChangeStream, error)
-
-	PutIntegration(context.Context, *types.Integration) (*types.Integration, error)
-	GetIntegration(context.Context, string) (*types.Integration, error)
-	DeleteIntegration(context.Context, *types.Integration) (*types.Integration, error)
+	GetLightEvent(ctx context.Context) (*mongo.ChangeStream, error)
 
 	// Genric entity
 	GetAllEntities(ctx context.Context, kind string, integrationName string) ([]byte, error)
 
+	// Integration
+	PutIntegration(context.Context, *types.Integration) (*types.Integration, error)
+	UpdateIntegrationState(context.Context, *types.Integration) (*types.Integration, error)
+	UpdateIntegrationDesiredState(context.Context, *types.Integration) (*types.Integration, error)
+	GetIntegration(context.Context, string) (*types.Integration, error)
+	DeleteIntegration(context.Context, *types.Integration) (*types.Integration, error)
+
 	// Light store
 	PutLight(context.Context, *types.Light) (*types.Light, error)
 	UpdateLightState(ctx context.Context, light *types.Light) (*types.Light, error)
+	UpdateLightStateDesiredState(ctx context.Context, light *types.Light) (*types.Light, error)
 	GetLightByName(context.Context, string) (*types.Light, error)
 	GetAllLight(context.Context) ([]types.Light, error)
 	GetLightByIntegration(context.Context, string) ([]types.Light, error)
