@@ -1,3 +1,7 @@
+# api-server
+
+[![Build Status](https://sundae-drone.connan.pro/api/badges/sundae-party/api-server/status.svg)](https://sundae-drone.connan.pro/sundae-party/api-server)
+
 # Build
 
 ## Build all the api-server

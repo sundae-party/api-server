@@ -3,7 +3,7 @@ rs.initiate({
     members: [
         {
             _id: 0,
-            host: "gogs.connan.pro:27018",
+            host: "mongo:27017",
         }
     ]
 })
