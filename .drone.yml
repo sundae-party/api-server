@@ -40,7 +40,7 @@ steps:
         from_secret: db_name
     commands:
       - date
-      - mongo --host mongo -u admin -p pwd init_mongo_test.js
+      - mongo admin --host mongo -u admin -p pwd init_mongo_test.js
 
   - name: go-test
     image: sundaeparty/devcontainer:latest
