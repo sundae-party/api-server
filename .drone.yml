@@ -12,15 +12,9 @@ services:
         from_secret: db_admin_pwd
     ports:
       - 27017
+    command: [--replSet, rs0]
 
 steps:
-  - name: get-mongodb-version
-    image: mongo:4
-    commands:
-      - sleep 15
-      - date
-      - mongo --host mongo --eval "db.version()"
-
   - name: init-mongodb
     image: mongo:4
     environment:
@@ -35,11 +29,32 @@ steps:
       DB_NAME:
         from_secret: db_name
     commands:
-      - date
-      - mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} init_mongo_test.js
+      - sleep 10
+      - 'mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "rs.initiate({_id: ''rs0'', members: [{_id: 0, host: ''mongo:27017''}]})"'
+      - sleep 2
+      - 'mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "db.getSiblingDB(''$${DB_NAME}'').createUser({user: ''$${DB_USER}'', pwd: ''$${DB_PASS}'', roles: [{role: ''readWrite'', db: ''$${DB_NAME}''}]})"'
+
+  - name: Check mongo rs conf
+    image: mongo:4
+    environment:
+      DB_ADMIN_USR:
+        from_secret: db_admin_user
+      DB_ADMIN_PWD:
+        from_secret: db_admin_pwd
+    commands:
+      - mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "rs.status()"
 
   - name: go-test
     image: sundaeparty/devcontainer:latest
+    environment:
+      MONGO_USR:
+        from_secret: db_user
+      MONGO_PWD:
+        from_secret: db_password
+      MONGO_DB:
+        from_secret: db_name
+      MONGO_ADDR: mongo:27017
+      MONGO_RS: rs0
     commands:
       - make
       - make go_test

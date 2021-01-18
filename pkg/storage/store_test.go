@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
@@ -16,11 +17,11 @@ func init() {
 	ctx := context.Background()
 	mongoOpsOK := &StoreOption{
 		Type:     "mongo",
-		Address:  []string{"gogs.connan.pro:27018"},
-		User:     "sundae",
-		Password: "pass",
-		DbName:   "sundae",
-		RsName:   "rs0",
+		Address:  []string{os.Getenv("MONGO_ADDR")},
+		User:     os.Getenv("MONGO_USR"),
+		Password: os.Getenv("MONGO_PWD"),
+		DbName:   os.Getenv("MONGO_DB"),
+		RsName:   os.Getenv("MONGO_RS"),
 	}
 
 	store, err := NewStore(ctx, mongoOpsOK)
