@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package types;
+
+import "integration.proto";
+
+option go_package = "github.com/sundae-party/api-server/pkg/apis/core/types";
+
+service SensorHandler {
+    rpc Get (Sensor) returns (Sensor);
+    rpc Create (Sensor) returns (Sensor);
+    rpc Update (Sensor) returns (Sensor);
+    rpc Delete (Sensor) returns (Sensor);
+
+    rpc GetAll (types.GetAllRequest) returns (stream Sensor);
+    rpc WatchAll (Sensor) returns (stream Sensor);
+    rpc setValue (SetSensorValueRequest) returns (Sensor);
+}
+
+message SetSensorValueRequest {
+    string SensorName = 1;
+    string integrationName = 2;
+    bool value = 3;
+}
+
+message Sensor {
+    string name = 1;
+    types.Integration integration = 2;
+    string Device = 3;
+    string displayed_name = 4;
+    string room = 5;
+    int64 value = 6;
+    enum Class {
+        none = 0;
+        battery = 1;            //% of battery that is left
+        humidity = 2;           //% of humidity in the air
+        illuminance = 3;        //light level in lx or lm
+        signal_strength = 4;    //Signal strength in dB or dBm
+        temperature = 5;        //Temperature in °C or °F
+        power = 6;              //Power in W or kW
+        pressure = 7;           //Pressure in hPa or mbar
+        timestamp = 8;          //Unix timestamp int64
+        current = 9;            //Current in A
+        energy = 10;            //Energy in Wh or kWh
+        power_factor = 11;      //Power Factor in %
+        voltage = 12;           //Voltage in V
+    }
+    Class class = 7;
+    string unit = 8;
+    string mutation = 9;
+}

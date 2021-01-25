@@ -355,3 +355,58 @@ func TestGetAllBinarySensor(t *testing.T) {
 		t.Fatalf("All binary sensors not found\n")
 	}
 }
+
+//
+// Sensor test
+//
+
+func TestGetAllSensor(t *testing.T) {
+
+	ctx := context.Background()
+
+	mockSensor1 := &types.Sensor{Name: "s1", Integration: &types.Integration{Name: "i1"}}
+	mockSensor2 := &types.Sensor{Name: "s2", Integration: &types.Integration{Name: "i1"}}
+
+	// Create mock sensor
+	s1, err := m_store.PutSensor(ctx, mockSensor1)
+	if err != nil {
+		t.Fatalf("Fail to create mock sensor %s", err)
+	}
+	s2, err := m_store.PutSensor(ctx, mockSensor2)
+	if err != nil {
+		t.Fatalf("Fail to create mock sensor %s", err)
+	}
+
+	// Try to get it
+	sensors, err := m_store.GetAllSensor(ctx)
+	if err != nil {
+		t.Fatalf("Error getting sensors -> %s\n", err)
+	}
+	count := 0
+	for _, sensor := range sensors {
+		if sensor.Name == mockSensor1.Name {
+			count++
+		}
+		if sensor.Name == mockSensor2.Name {
+			count++
+		}
+	}
+
+	// Clean created sensor
+	_, err = m_store.DeleteSensor(ctx, s1)
+	if err != nil {
+		t.Fatalf("Error Deleting the sensor s1 -> \n%s\n", err)
+	}
+	_, err = m_store.DeleteSensor(ctx, s2)
+	if err != nil {
+		t.Fatalf("Error Deleting the sensor s2 -> \n%s\n", err)
+	}
+
+	if count != 2 {
+		t.Log("Error, should have s1 & s2 but have -> \n")
+		for _, s := range sensors {
+			t.Logf("%s\n", s.Name)
+		}
+		t.Fatalf("All sensors not found\n")
+	}
+}

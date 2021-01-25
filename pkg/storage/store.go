@@ -54,6 +54,14 @@ type Store interface {
 	GetBinarySensorByIntegration(c context.Context, integrationName string) ([]types.BinarySensor, error)
 	DeleteBinarySensor(ctx context.Context, BinarySensor *types.BinarySensor) (*types.BinarySensor, error)
 	UpdateBinarySensorState(ctx context.Context, BinarySensor *types.BinarySensor) (*types.BinarySensor, error)
+
+	// Sensor
+	PutSensor(ctx context.Context, Sensor *types.Sensor) (*types.Sensor, error)
+	GetSensorByName(ctx context.Context, key string) (*types.Sensor, error)
+	GetAllSensor(c context.Context) ([]types.Sensor, error)
+	GetSensorByIntegration(c context.Context, integrationName string) ([]types.Sensor, error)
+	DeleteSensor(ctx context.Context, Sensor *types.Sensor) (*types.Sensor, error)
+	UpdateSensorValue(ctx context.Context, Sensor *types.Sensor) (*types.Sensor, error)
 }
 
 type StoreOption struct {

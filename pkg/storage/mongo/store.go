@@ -20,6 +20,7 @@ const (
 	entityCollection      = "entities"
 	lightKind             = "light"
 	binarySensorKind      = "binarySensor"
+	sensorKind            = "sensor"
 )
 
 type MongoStore struct {
