@@ -37,7 +37,7 @@ func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.L
 	}
 
 	// Ensure kind is set to Light
-	light.Mutation = "light"
+	light.Mutation = lightKind
 
 	// Convert light to bson object
 	bsonLight, err := bson.Marshal(light)
@@ -80,7 +80,7 @@ func (ms MongoStore) GetAllLight(c context.Context) ([]types.Light, error) {
 	ctx, cancel := context.WithTimeout(c, time.Second*1)
 	defer cancel()
 
-	cursor, err := ms.getAllEntities(c, "light", "")
+	cursor, err := ms.getAllEntities(c, lightKind, "")
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (ms MongoStore) GetAllLight(c context.Context) ([]types.Light, error) {
 
 // GetLightByIntegration return a list of light
 func (ms MongoStore) GetLightByIntegration(c context.Context, integrationName string) ([]types.Light, error) {
-	cursor, err := ms.getAllEntities(c, "light", integrationName)
+	cursor, err := ms.getAllEntities(c, lightKind, integrationName)
 	if err != nil {
 		return nil, err
 	}

@@ -18,6 +18,8 @@ import (
 const (
 	integrationCollection = "integrations"
 	entityCollection      = "entities"
+	lightKind             = "light"
+	binarySensorKind      = "binarySensor"
 )
 
 type MongoStore struct {

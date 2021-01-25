@@ -32,6 +32,10 @@ func init() {
 	m_store = store
 }
 
+//
+// Integration tests
+//
+
 func TestPutIntegration(t *testing.T) {
 	ctx := context.Background()
 
@@ -216,7 +220,10 @@ func TestUpdateIntegrationDesiredState(t *testing.T) {
 	}
 }
 
+//
 // Light test
+//
+
 func TestCreateInvalidLight(t *testing.T) {
 	ctx := context.Background()
 
@@ -291,5 +298,60 @@ func TestGetAllLight(t *testing.T) {
 			t.Logf("%s\n", light.Name)
 		}
 		t.Fatalf("All light not found\n")
+	}
+}
+
+//
+// binarySensor test
+//
+
+func TestGetAllBinarySensor(t *testing.T) {
+
+	ctx := context.Background()
+
+	mockBinarySensor1 := &types.BinarySensor{Name: "bs1", Integration: &types.Integration{Name: "i1"}}
+	mockBinarySensor2 := &types.BinarySensor{Name: "bs2", Integration: &types.Integration{Name: "i1"}}
+
+	// Create mock binary sensor
+	bs1, err := m_store.PutBinarySensor(ctx, mockBinarySensor1)
+	if err != nil {
+		t.Fatalf("Fail to create mock binary sensor %s", err)
+	}
+	bs2, err := m_store.PutBinarySensor(ctx, mockBinarySensor2)
+	if err != nil {
+		t.Fatalf("Fail to create mock binary sensor %s", err)
+	}
+
+	// Try to get it
+	binarySensors, err := m_store.GetAllBinarySensor(ctx)
+	if err != nil {
+		t.Fatalf("Error getting binary sensor -> %s\n", err)
+	}
+	count := 0
+	for _, binarySensor := range binarySensors {
+		if binarySensor.Name == mockBinarySensor1.Name {
+			count++
+		}
+		if binarySensor.Name == mockBinarySensor2.Name {
+			count++
+		}
+	}
+
+	// Clean created binary sensor
+	_, err = m_store.DeleteBinarySensor(ctx, bs1)
+	if err != nil {
+		t.Fatalf("Error Deleting the binary sensor bs1 -> \n%s\n", err)
+	}
+	_, err = m_store.DeleteBinarySensor(ctx, bs2)
+	if err != nil {
+		t.Fatalf("Error Deleting the binary sensor bs2 -> \n%s\n", err)
+	}
+
+	if count != 2 {
+		t.Log("Error, should have bs1 & bs2 but have -> \n")
+		for _, bs := range binarySensors {
+			t.Logf("%s\n", bs.Name)
+		}
+		t.Fatalf("All binary sensors not found\n")
 	}
 }

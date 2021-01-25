@@ -46,6 +46,14 @@ type Store interface {
 	GetAllLight(context.Context) ([]types.Light, error)
 	GetLightByIntegration(context.Context, string) ([]types.Light, error)
 	DeleteLight(context.Context, *types.Light) (*types.Light, error)
+
+	// Binary sensor
+	PutBinarySensor(ctx context.Context, BinarySensor *types.BinarySensor) (*types.BinarySensor, error)
+	GetBinarySensorByName(ctx context.Context, key string) (*types.BinarySensor, error)
+	GetAllBinarySensor(c context.Context) ([]types.BinarySensor, error)
+	GetBinarySensorByIntegration(c context.Context, integrationName string) ([]types.BinarySensor, error)
+	DeleteBinarySensor(ctx context.Context, BinarySensor *types.BinarySensor) (*types.BinarySensor, error)
+	UpdateBinarySensorState(ctx context.Context, BinarySensor *types.BinarySensor) (*types.BinarySensor, error)
 }
 
 type StoreOption struct {
