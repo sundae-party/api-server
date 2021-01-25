@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
@@ -115,6 +116,57 @@ func TestGetIntegration(t *testing.T) {
 	t.Log(res)
 }
 
+func TestUpdateIntegrationState(t *testing.T) {
+	ctx := context.Background()
+
+	iOk := &types.Integration{
+		Name:          "i1",
+		Documentation: "https://sundae/doc/hue",
+		Version:       "v1.0.0",
+		Url:           "https://github.com/sundae-party/integration/i1",
+		State: &types.IntegrationState{
+			Connected: true,
+		},
+		Services: []*types.IntegrationService{
+			{
+				Name: "refresh_entities",
+				Data: "",
+			},
+		},
+	}
+
+	// Create ne integration
+	ni, err := m_store.PutIntegration(ctx, iOk)
+	if err != nil {
+		t.Errorf("TestUpdateIntegrationState Error : creating new integration -> %s\n", err)
+	}
+
+	// Update the integration state
+	ni.State = &types.IntegrationState{Connected: true, ServiceName: ni.Services[0].Name, ServiceData: ni.Services[0].Data, ServiceIdle: false}
+	_, err = m_store.UpdateIntegrationState(ctx, ni)
+	if err != nil {
+		t.Errorf("TestUpdateIntegrationState Error : updating integration state -> %s\n", err)
+	}
+
+	// Get the integration
+	gi, err := m_store.GetIntegration(ctx, iOk.Name)
+	if err != nil {
+		t.Errorf("TestUpdateIntegrationState Error : getting the updated integration -> %s\n", err)
+	}
+
+	// Check if updated state is applyed
+	if !reflect.DeepEqual(ni.State, gi.State) {
+		t.Errorf("TestUpdateIntegrationState Error the integration state should be -> %v but have -> %v", ni.State, gi.State)
+	}
+
+	// Clean, remove integration
+	_, err = m_store.DeleteIntegration(ctx, iOk)
+	if err != nil {
+		t.Errorf("Error Deleting the integration -> \n%s\n", err)
+	}
+}
+
+// Light test
 func TestCreateInvalidLight(t *testing.T) {
 	ctx := context.Background()
 
