@@ -19,6 +19,11 @@ service IntegrationHandler {
     rpc StoreGet (IntegrationStoreRequest) returns (IntegrationStoreRequest);
 }
 
+// Generic get all request
+message GetAllRequest {
+    // intentionally empty
+}
+
 // Persistent storage in the api-server store
 message IntegrationStoreRequest {
     string integration_name = 1;

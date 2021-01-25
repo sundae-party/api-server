@@ -12,8 +12,8 @@ service LightHandler {
     rpc Update (Light) returns (Light);
     rpc Delete (Light) returns (Light);
 
-    rpc GetAll (GetAllRequest) returns (stream Light);
-    rpc WatchAll (GetAllRequest) returns (stream Light);
+    rpc GetAll (types.GetAllRequest) returns (stream Light);
+    rpc WatchAll (types.GetAllRequest) returns (stream Light);
     rpc SetDesiredState (SetLightStateRequest) returns (Light);
     rpc setState (SetLightStateRequest) returns (Light);
 }
@@ -22,10 +22,6 @@ message SetLightStateRequest {
     string lightName = 1;
     string integrationName = 2;
     LightState state = 3;
-}
-
-message GetAllRequest {
-    // intentionally empty
 }
 
 message Light {

@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package types;
+
+import "integration.proto";
+
+option go_package = "github.com/sundae-party/api-server/pkg/apis/core/types";
+
+service BinarySensorHandler {
+    rpc Get (BinarySensor) returns (BinarySensor);
+    rpc Create (BinarySensor) returns (BinarySensor);
+    rpc Update (BinarySensor) returns (BinarySensor);
+    rpc Delete (BinarySensor) returns (BinarySensor);
+
+    rpc GetAll (types.GetAllRequest) returns (stream BinarySensor);
+    rpc WatchAll (BinarySensor) returns (stream BinarySensor);
+    rpc setState (SetBinarySensorStateRequest) returns (BinarySensor);
+}
+
+message SetBinarySensorStateRequest {
+    string binarySensorName = 1;
+    string integrationName = 2;
+    bool state = 3;
+}
+
+message BinarySensor {
+    string name = 1;
+    types.Integration integration = 2;
+    string Device = 3;
+    string displayed_name = 4;
+    string room = 5;
+    bool state = 6;
+    string mutation = 7;
+}
