@@ -29,7 +29,7 @@ message Sensor {
     string Device = 3;
     string displayed_name = 4;
     string room = 5;
-    int64 value = 6;
+    float value = 6;
     enum Class {
         none = 0;
         battery = 1;            //% of battery that is left
