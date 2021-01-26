@@ -21,6 +21,7 @@ const (
 	lightKind             = "light"
 	binarySensorKind      = "binarySensor"
 	sensorKind            = "sensor"
+	sunKind               = "sun"
 )
 
 type MongoStore struct {

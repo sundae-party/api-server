@@ -62,6 +62,12 @@ type Store interface {
 	GetSensorByIntegration(c context.Context, integrationName string) ([]types.Sensor, error)
 	DeleteSensor(ctx context.Context, Sensor *types.Sensor) (*types.Sensor, error)
 	UpdateSensorValue(ctx context.Context, Sensor *types.Sensor) (*types.Sensor, error)
+
+	// Sun
+	PutSun(ctx context.Context, Sun *types.Sun) (*types.Sun, error)
+	GetAllSun(c context.Context) ([]types.Sun, error)
+	DeleteSun(ctx context.Context, Sun *types.Sun) (*types.Sun, error)
+	UpdateSunValue(ctx context.Context, Sun *types.Sun) (*types.Sun, error)
 }
 
 type StoreOption struct {

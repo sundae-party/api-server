@@ -410,3 +410,46 @@ func TestGetAllSensor(t *testing.T) {
 		t.Fatalf("All sensors not found\n")
 	}
 }
+
+//
+// Sun test
+//
+
+func TestGetAllSun(t *testing.T) {
+
+	ctx := context.Background()
+
+	mockSun1 := &types.Sun{Name: "s1", Integration: &types.Integration{Name: "i1"}}
+
+	// Create mock sun
+	s1, err := m_store.PutSun(ctx, mockSun1)
+	if err != nil {
+		t.Fatalf("Fail to create mock sun %s", err)
+	}
+
+	// Try to get it
+	suns, err := m_store.GetAllSun(ctx)
+	if err != nil {
+		t.Fatalf("Error getting sun -> %s\n", err)
+	}
+	count := 0
+	for _, sun := range suns {
+		if sun.Name == mockSun1.Name {
+			count++
+		}
+	}
+
+	// Clean created sensor
+	_, err = m_store.DeleteSun(ctx, s1)
+	if err != nil {
+		t.Fatalf("Error Deleting the sun s1 -> \n%s\n", err)
+	}
+
+	if count != 1 {
+		t.Log("Error, should have s1 but have -> \n")
+		for _, s := range suns {
+			t.Logf("%s\n", s.Name)
+		}
+		t.Fatalf("All suns not found\n")
+	}
+}
