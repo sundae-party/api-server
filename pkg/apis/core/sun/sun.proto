@@ -23,12 +23,12 @@ message SetSunValueRequest {
 }
 
 message SunState {
-	int64 nextRising = 1;
-	int64 nextSetting = 2;
-    int64 nextNoon = 5;
-    int64 nextMidnight = 6;
-    int64 elevation = 7;
-    int64 azimuth = 8;
+	string nextRising = 1;
+	string nextSetting = 2;
+    string nextNoon = 5;
+    string nextMidnight = 6;
+    float elevation = 7;
+    float azimuth = 8;
 	enum State {
         above_horizon = 0;
         below_horizon = 1;
