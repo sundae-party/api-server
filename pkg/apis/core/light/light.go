@@ -37,7 +37,7 @@ func (lh LightHandler) GetAll(_ *types.GetAllRequest, stream types.LightHandler_
 	return nil
 }
 func (lh LightHandler) WatchAll(r *types.GetAllRequest, stream types.LightHandler_WatchAllServer) error {
-	cs, err := lh.Store.GetLightEvent(stream.Context())
+	cs, err := lh.Store.GetEntityEvent(stream.Context(), "light")
 	if err != nil {
 		return err
 	}

@@ -22,7 +22,7 @@ type BinarySensorHandlerClient interface {
 	Update(ctx context.Context, in *BinarySensor, opts ...grpc.CallOption) (*BinarySensor, error)
 	Delete(ctx context.Context, in *BinarySensor, opts ...grpc.CallOption) (*BinarySensor, error)
 	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (BinarySensorHandler_GetAllClient, error)
-	WatchAll(ctx context.Context, in *BinarySensor, opts ...grpc.CallOption) (BinarySensorHandler_WatchAllClient, error)
+	WatchAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (BinarySensorHandler_WatchAllClient, error)
 	SetState(ctx context.Context, in *SetBinarySensorStateRequest, opts ...grpc.CallOption) (*BinarySensor, error)
 }
 
@@ -102,7 +102,7 @@ func (x *binarySensorHandlerGetAllClient) Recv() (*BinarySensor, error) {
 	return m, nil
 }
 
-func (c *binarySensorHandlerClient) WatchAll(ctx context.Context, in *BinarySensor, opts ...grpc.CallOption) (BinarySensorHandler_WatchAllClient, error) {
+func (c *binarySensorHandlerClient) WatchAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (BinarySensorHandler_WatchAllClient, error) {
 	stream, err := c.cc.NewStream(ctx, &_BinarySensorHandler_serviceDesc.Streams[1], "/types.BinarySensorHandler/WatchAll", opts...)
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ type BinarySensorHandlerServer interface {
 	Update(context.Context, *BinarySensor) (*BinarySensor, error)
 	Delete(context.Context, *BinarySensor) (*BinarySensor, error)
 	GetAll(*GetAllRequest, BinarySensorHandler_GetAllServer) error
-	WatchAll(*BinarySensor, BinarySensorHandler_WatchAllServer) error
+	WatchAll(*GetAllRequest, BinarySensorHandler_WatchAllServer) error
 	SetState(context.Context, *SetBinarySensorStateRequest) (*BinarySensor, error)
 	mustEmbedUnimplementedBinarySensorHandlerServer()
 }
@@ -176,7 +176,7 @@ func (UnimplementedBinarySensorHandlerServer) Delete(context.Context, *BinarySen
 func (UnimplementedBinarySensorHandlerServer) GetAll(*GetAllRequest, BinarySensorHandler_GetAllServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (UnimplementedBinarySensorHandlerServer) WatchAll(*BinarySensor, BinarySensorHandler_WatchAllServer) error {
+func (UnimplementedBinarySensorHandlerServer) WatchAll(*GetAllRequest, BinarySensorHandler_WatchAllServer) error {
 	return status.Errorf(codes.Unimplemented, "method WatchAll not implemented")
 }
 func (UnimplementedBinarySensorHandlerServer) SetState(context.Context, *SetBinarySensorStateRequest) (*BinarySensor, error) {
@@ -289,7 +289,7 @@ func (x *binarySensorHandlerGetAllServer) Send(m *BinarySensor) error {
 }
 
 func _BinarySensorHandler_WatchAll_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BinarySensor)
+	m := new(GetAllRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}

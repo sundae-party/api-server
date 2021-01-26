@@ -7,19 +7,17 @@ import "integration.proto";
 option go_package = "github.com/sundae-party/api-server/pkg/apis/core/types";
 
 service SunHandler {
-    rpc Get (Sun) returns (Sun);
+    rpc Get (SunRequest) returns (Sun);
     rpc Create (Sun) returns (Sun);
-    rpc Update (Sun) returns (Sun);
-    rpc Delete (Sun) returns (Sun);
+    rpc Delete (SunRequest) returns (Sun);
 
-    rpc Watch (Sun) returns (stream Sun);
-    rpc setValue (SetSunValueRequest) returns (Sun);
+    rpc Watch (SunRequest) returns (stream Sun);
+    rpc SetState (SunState) returns (Sun);
 }
 
-message SetSunValueRequest {
-    string SunName = 1;
-    string integrationName = 2;
-    SunState value = 3;
+
+message SunRequest {
+    // intentionally empty
 }
 
 message SunState {

@@ -17,12 +17,11 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SunHandlerClient interface {
-	Get(ctx context.Context, in *Sun, opts ...grpc.CallOption) (*Sun, error)
+	Get(ctx context.Context, in *SunRequest, opts ...grpc.CallOption) (*Sun, error)
 	Create(ctx context.Context, in *Sun, opts ...grpc.CallOption) (*Sun, error)
-	Update(ctx context.Context, in *Sun, opts ...grpc.CallOption) (*Sun, error)
-	Delete(ctx context.Context, in *Sun, opts ...grpc.CallOption) (*Sun, error)
-	Watch(ctx context.Context, in *Sun, opts ...grpc.CallOption) (SunHandler_WatchClient, error)
-	SetValue(ctx context.Context, in *SetSunValueRequest, opts ...grpc.CallOption) (*Sun, error)
+	Delete(ctx context.Context, in *SunRequest, opts ...grpc.CallOption) (*Sun, error)
+	Watch(ctx context.Context, in *SunRequest, opts ...grpc.CallOption) (SunHandler_WatchClient, error)
+	SetState(ctx context.Context, in *SunState, opts ...grpc.CallOption) (*Sun, error)
 }
 
 type sunHandlerClient struct {
@@ -33,7 +32,7 @@ func NewSunHandlerClient(cc grpc.ClientConnInterface) SunHandlerClient {
 	return &sunHandlerClient{cc}
 }
 
-func (c *sunHandlerClient) Get(ctx context.Context, in *Sun, opts ...grpc.CallOption) (*Sun, error) {
+func (c *sunHandlerClient) Get(ctx context.Context, in *SunRequest, opts ...grpc.CallOption) (*Sun, error) {
 	out := new(Sun)
 	err := c.cc.Invoke(ctx, "/types.SunHandler/Get", in, out, opts...)
 	if err != nil {
@@ -51,16 +50,7 @@ func (c *sunHandlerClient) Create(ctx context.Context, in *Sun, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *sunHandlerClient) Update(ctx context.Context, in *Sun, opts ...grpc.CallOption) (*Sun, error) {
-	out := new(Sun)
-	err := c.cc.Invoke(ctx, "/types.SunHandler/Update", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sunHandlerClient) Delete(ctx context.Context, in *Sun, opts ...grpc.CallOption) (*Sun, error) {
+func (c *sunHandlerClient) Delete(ctx context.Context, in *SunRequest, opts ...grpc.CallOption) (*Sun, error) {
 	out := new(Sun)
 	err := c.cc.Invoke(ctx, "/types.SunHandler/Delete", in, out, opts...)
 	if err != nil {
@@ -69,7 +59,7 @@ func (c *sunHandlerClient) Delete(ctx context.Context, in *Sun, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *sunHandlerClient) Watch(ctx context.Context, in *Sun, opts ...grpc.CallOption) (SunHandler_WatchClient, error) {
+func (c *sunHandlerClient) Watch(ctx context.Context, in *SunRequest, opts ...grpc.CallOption) (SunHandler_WatchClient, error) {
 	stream, err := c.cc.NewStream(ctx, &_SunHandler_serviceDesc.Streams[0], "/types.SunHandler/Watch", opts...)
 	if err != nil {
 		return nil, err
@@ -101,9 +91,9 @@ func (x *sunHandlerWatchClient) Recv() (*Sun, error) {
 	return m, nil
 }
 
-func (c *sunHandlerClient) SetValue(ctx context.Context, in *SetSunValueRequest, opts ...grpc.CallOption) (*Sun, error) {
+func (c *sunHandlerClient) SetState(ctx context.Context, in *SunState, opts ...grpc.CallOption) (*Sun, error) {
 	out := new(Sun)
-	err := c.cc.Invoke(ctx, "/types.SunHandler/setValue", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/types.SunHandler/SetState", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -114,12 +104,11 @@ func (c *sunHandlerClient) SetValue(ctx context.Context, in *SetSunValueRequest,
 // All implementations must embed UnimplementedSunHandlerServer
 // for forward compatibility
 type SunHandlerServer interface {
-	Get(context.Context, *Sun) (*Sun, error)
+	Get(context.Context, *SunRequest) (*Sun, error)
 	Create(context.Context, *Sun) (*Sun, error)
-	Update(context.Context, *Sun) (*Sun, error)
-	Delete(context.Context, *Sun) (*Sun, error)
-	Watch(*Sun, SunHandler_WatchServer) error
-	SetValue(context.Context, *SetSunValueRequest) (*Sun, error)
+	Delete(context.Context, *SunRequest) (*Sun, error)
+	Watch(*SunRequest, SunHandler_WatchServer) error
+	SetState(context.Context, *SunState) (*Sun, error)
 	mustEmbedUnimplementedSunHandlerServer()
 }
 
@@ -127,23 +116,20 @@ type SunHandlerServer interface {
 type UnimplementedSunHandlerServer struct {
 }
 
-func (UnimplementedSunHandlerServer) Get(context.Context, *Sun) (*Sun, error) {
+func (UnimplementedSunHandlerServer) Get(context.Context, *SunRequest) (*Sun, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedSunHandlerServer) Create(context.Context, *Sun) (*Sun, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedSunHandlerServer) Update(context.Context, *Sun) (*Sun, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
-}
-func (UnimplementedSunHandlerServer) Delete(context.Context, *Sun) (*Sun, error) {
+func (UnimplementedSunHandlerServer) Delete(context.Context, *SunRequest) (*Sun, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedSunHandlerServer) Watch(*Sun, SunHandler_WatchServer) error {
+func (UnimplementedSunHandlerServer) Watch(*SunRequest, SunHandler_WatchServer) error {
 	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
 }
-func (UnimplementedSunHandlerServer) SetValue(context.Context, *SetSunValueRequest) (*Sun, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetValue not implemented")
+func (UnimplementedSunHandlerServer) SetState(context.Context, *SunState) (*Sun, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
 }
 func (UnimplementedSunHandlerServer) mustEmbedUnimplementedSunHandlerServer() {}
 
@@ -159,7 +145,7 @@ func RegisterSunHandlerServer(s grpc.ServiceRegistrar, srv SunHandlerServer) {
 }
 
 func _SunHandler_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Sun)
+	in := new(SunRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -171,7 +157,7 @@ func _SunHandler_Get_Handler(srv interface{}, ctx context.Context, dec func(inte
 		FullMethod: "/types.SunHandler/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SunHandlerServer).Get(ctx, req.(*Sun))
+		return srv.(SunHandlerServer).Get(ctx, req.(*SunRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -194,26 +180,8 @@ func _SunHandler_Create_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SunHandler_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Sun)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SunHandlerServer).Update(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/types.SunHandler/Update",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SunHandlerServer).Update(ctx, req.(*Sun))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _SunHandler_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Sun)
+	in := new(SunRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -225,13 +193,13 @@ func _SunHandler_Delete_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/types.SunHandler/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SunHandlerServer).Delete(ctx, req.(*Sun))
+		return srv.(SunHandlerServer).Delete(ctx, req.(*SunRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _SunHandler_Watch_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Sun)
+	m := new(SunRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -251,20 +219,20 @@ func (x *sunHandlerWatchServer) Send(m *Sun) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _SunHandler_SetValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetSunValueRequest)
+func _SunHandler_SetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SunState)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SunHandlerServer).SetValue(ctx, in)
+		return srv.(SunHandlerServer).SetState(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/types.SunHandler/setValue",
+		FullMethod: "/types.SunHandler/SetState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SunHandlerServer).SetValue(ctx, req.(*SetSunValueRequest))
+		return srv.(SunHandlerServer).SetState(ctx, req.(*SunState))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -282,16 +250,12 @@ var _SunHandler_serviceDesc = grpc.ServiceDesc{
 			Handler:    _SunHandler_Create_Handler,
 		},
 		{
-			MethodName: "Update",
-			Handler:    _SunHandler_Update_Handler,
-		},
-		{
 			MethodName: "Delete",
 			Handler:    _SunHandler_Delete_Handler,
 		},
 		{
-			MethodName: "setValue",
-			Handler:    _SunHandler_SetValue_Handler,
+			MethodName: "SetState",
+			Handler:    _SunHandler_SetState_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -13,7 +13,7 @@ service SensorHandler {
     rpc Delete (Sensor) returns (Sensor);
 
     rpc GetAll (types.GetAllRequest) returns (stream Sensor);
-    rpc WatchAll (Sensor) returns (stream Sensor);
+    rpc WatchAll (types.GetAllRequest) returns (stream Sensor);
     rpc setValue (SetSensorValueRequest) returns (Sensor);
 }
 

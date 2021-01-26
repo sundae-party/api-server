@@ -15,6 +15,7 @@ import (
 	store_type "github.com/sundae-party/api-server/pkg/storage/types"
 )
 
+// TODO move to store type to be accessible by all
 const (
 	integrationCollection = "integrations"
 	entityCollection      = "entities"

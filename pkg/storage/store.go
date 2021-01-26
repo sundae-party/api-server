@@ -26,7 +26,7 @@ type Store interface {
 	// Event
 	GetAllEvent() chan store_type.StoreEvent
 	GetIntegrationEvent(ctx context.Context) (*mongo.ChangeStream, error)
-	GetLightEvent(ctx context.Context) (*mongo.ChangeStream, error)
+	GetEntityEvent(ctx context.Context, kind string) (*mongo.ChangeStream, error)
 
 	// Genric entity
 	GetAllEntities(ctx context.Context, kind string, integrationName string) ([]byte, error)
@@ -67,7 +67,7 @@ type Store interface {
 	PutSun(ctx context.Context, sunState *types.SunState, integration *types.Integration) (*types.Sun, error)
 	GetSun(c context.Context) (*types.Sun, error)
 	DeleteSun(ctx context.Context) (*types.Sun, error)
-	UpdateSunValue(ctx context.Context, state *types.SunState) (*types.Sun, error)
+	UpdateSunState(ctx context.Context, state *types.SunState) (*types.Sun, error)
 }
 
 type StoreOption struct {

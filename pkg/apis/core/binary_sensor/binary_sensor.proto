@@ -13,7 +13,7 @@ service BinarySensorHandler {
     rpc Delete (BinarySensor) returns (BinarySensor);
 
     rpc GetAll (types.GetAllRequest) returns (stream BinarySensor);
-    rpc WatchAll (BinarySensor) returns (stream BinarySensor);
+    rpc WatchAll (types.GetAllRequest) returns (stream BinarySensor);
     rpc setState (SetBinarySensorStateRequest) returns (BinarySensor);
 }
 

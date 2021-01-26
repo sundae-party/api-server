@@ -80,7 +80,7 @@ func (ms MongoStore) DeleteSun(ctx context.Context) (*types.Sun, error) {
 }
 
 // UpdateSunState will try to update the Sun state in the store
-func (ms MongoStore) UpdateSunValue(ctx context.Context, state *types.SunState) (*types.Sun, error) {
+func (ms MongoStore) UpdateSunState(ctx context.Context, state *types.SunState) (*types.Sun, error) {
 
 	// Convert Sun value to bson object
 	bsonSunState := bson.M{"state": state}

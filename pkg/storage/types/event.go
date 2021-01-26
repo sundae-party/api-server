@@ -30,3 +30,12 @@ type LightEvent struct {
 		Coll string
 	}
 }
+
+type SunEvent struct {
+	OperationType string
+	FullDocument  types.Sun
+	Ns            struct {
+		Db   string
+		Coll string
+	}
+}
