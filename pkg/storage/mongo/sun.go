@@ -2,25 +2,14 @@ package mongo
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"log"
-	"time"
 
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func buildSuntKey(sun *types.Sun) (key string, err error) {
-	if sun.Integration != nil {
-		if sun.Integration.Name != "" && sun.Name != "" {
-			return fmt.Sprintf("%s/%s", sun.Integration.Name, sun.Name), nil
-		}
-		return "", errors.New("Invalid sun format, the integration name or sun name is missing.")
-	}
-	return "", errors.New("Invalid sun format, the integration infos is empty.")
-}
+const sunKey = "sun/sun"
 
 //
 //
@@ -28,22 +17,22 @@ func buildSuntKey(sun *types.Sun) (key string, err error) {
 //
 //
 
-// PutSun create or update a Sun in the store.
-func (ms MongoStore) PutSun(ctx context.Context, Sun *types.Sun) (*types.Sun, error) {
+// PutSun create or update the Sun sensor in the store for the home.
+func (ms MongoStore) PutSun(ctx context.Context, sunState *types.SunState, integration *types.Integration) (*types.Sun, error) {
 
-	key, err := buildSuntKey(Sun)
-	if err != nil {
-		return nil, err
+	sun := &types.Sun{
+		Name:          "sun",
+		Integration:   integration,
+		DisplayedName: "sun",
+		State:         sunState,
+		Mutation:      sunKind,
 	}
 
-	// Ensure kind is set to sun
-	Sun.Mutation = sunKind
-
 	// Convert Sun to bson object
-	bsonSun, err := bson.Marshal(Sun)
+	bsonSun, err := bson.Marshal(sun)
 
 	// Put the Sun in the store
-	res, err := ms.putEntity(ctx, key, bsonSun)
+	res, err := ms.putEntity(ctx, sunKey, bsonSun)
 	if err != nil {
 		return nil, err
 	}
@@ -57,29 +46,26 @@ func (ms MongoStore) PutSun(ctx context.Context, Sun *types.Sun) (*types.Sun, er
 	return &newSun, nil
 }
 
-// GetAllSun return all Sun stored in the store
-func (ms MongoStore) GetAllSun(c context.Context) ([]types.Sun, error) {
-	ctx, cancel := context.WithTimeout(c, time.Second*1)
-	defer cancel()
+// GetSun return the home Sun sensor stored in the store
+func (ms MongoStore) GetSun(c context.Context) (*types.Sun, error) {
 
-	cursor, err := ms.getAllEntities(c, sunKind, "")
+	res, err := ms.getEntityByName(c, sunKey)
 	if err != nil {
 		return nil, err
 	}
 
-	var Suns []types.Sun
-	err = cursor.All(ctx, &Suns)
+	var sun *types.Sun
+	err = res.Decode(&sun)
 	if err != nil {
 		return nil, err
 	}
-	return Suns, nil
+	return sun, nil
 }
 
-// Delete a Sun in the store
-func (ms MongoStore) DeleteSun(ctx context.Context, Sun *types.Sun) (*types.Sun, error) {
-	key := fmt.Sprintf("%s/%s", Sun.Integration.Name, Sun.Name)
+// Delete the home Sun in the store
+func (ms MongoStore) DeleteSun(ctx context.Context) (*types.Sun, error) {
 
-	res, err := ms.deleteEntity(ctx, key)
+	res, err := ms.deleteEntity(ctx, sunKey)
 	if err != nil {
 		return nil, err
 	}
@@ -93,16 +79,14 @@ func (ms MongoStore) DeleteSun(ctx context.Context, Sun *types.Sun) (*types.Sun,
 	return &deleted, nil
 }
 
-// UpdateSunState will try to update the Sun state in the store, if the Sun is not present in the store it will be created
-func (ms MongoStore) UpdateSunValue(ctx context.Context, Sun *types.Sun) (*types.Sun, error) {
+// UpdateSunState will try to update the Sun state in the store
+func (ms MongoStore) UpdateSunValue(ctx context.Context, state *types.SunState) (*types.Sun, error) {
 
 	// Convert Sun value to bson object
-	bsonSunState := bson.M{"state": Sun.State}
-
-	key := fmt.Sprintf("%s/%s", Sun.Integration.Name, Sun.Name)
+	bsonSunState := bson.M{"state": state}
 
 	// Try to update Sun
-	res, err := ms.updateEntityState(ctx, key, bsonSunState)
+	res, err := ms.updateEntityState(ctx, sunKey, bsonSunState)
 	if err != nil {
 		return nil, err
 	}

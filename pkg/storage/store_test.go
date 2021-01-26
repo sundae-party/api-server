@@ -6,6 +6,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
 )
@@ -415,41 +416,45 @@ func TestGetAllSensor(t *testing.T) {
 // Sun test
 //
 
-func TestGetAllSun(t *testing.T) {
+func TestGetSun(t *testing.T) {
 
 	ctx := context.Background()
 
-	mockSun1 := &types.Sun{Name: "s1", Integration: &types.Integration{Name: "i1"}}
+	strDate := time.Now().Format(time.RFC3339)
+
+	mockSunState := &types.SunState{
+		NextRising:   strDate,
+		NextSetting:  strDate,
+		NextNoon:     strDate,
+		NextMidnight: strDate,
+		Elevation:    12.3,
+		Azimuth:      36.12,
+		State:        types.SunState_above_horizon,
+	}
+	mockIntegration := &types.Integration{Name: "sun"}
 
 	// Create mock sun
-	s1, err := m_store.PutSun(ctx, mockSun1)
+	_, err := m_store.PutSun(ctx, mockSunState, mockIntegration)
 	if err != nil {
 		t.Fatalf("Fail to create mock sun %s", err)
 	}
 
 	// Try to get it
-	suns, err := m_store.GetAllSun(ctx)
+	sun, err := m_store.GetSun(ctx)
 	if err != nil {
 		t.Fatalf("Error getting sun -> %s\n", err)
 	}
-	count := 0
-	for _, sun := range suns {
-		if sun.Name == mockSun1.Name {
-			count++
-		}
-	}
 
-	// Clean created sensor
-	_, err = m_store.DeleteSun(ctx, s1)
+	// Clean created sun
+	_, err = m_store.DeleteSun(ctx)
 	if err != nil {
-		t.Fatalf("Error Deleting the sun s1 -> \n%s\n", err)
+		t.Fatalf("Error Deleting the sun -> \n%s\n", err)
 	}
 
-	if count != 1 {
-		t.Log("Error, should have s1 but have -> \n")
-		for _, s := range suns {
-			t.Logf("%s\n", s.Name)
-		}
-		t.Fatalf("All suns not found\n")
+	if sun.Name != "sun" || sun.Integration.Name != "sun" || sun.Mutation != "sun" {
+		t.Errorf("TestGetSun Error, sun invalid format, name, integration name and mutation sould be sun but have => %s", sun)
+	}
+	if !reflect.DeepEqual(mockSunState, sun.State) {
+		t.Errorf("TestGetSun Error, sun invalid sun state format, want => %s have => %s", mockSunState, sun.State)
 	}
 }
