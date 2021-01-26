@@ -39,7 +39,6 @@ message Sensor {
         temperature = 5;        //Temperature in °C or °F
         power = 6;              //Power in W or kW
         pressure = 7;           //Pressure in hPa or mbar
-        timestamp = 8;          //Unix timestamp int64
         current = 9;            //Current in A
         energy = 10;            //Energy in Wh or kWh
         power_factor = 11;      //Power Factor in %
