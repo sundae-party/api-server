@@ -14,6 +14,9 @@ protoc_binary_sensor:
 protoc_sensor:
 	protoc --go_out=./pkg/apis/core/types --go_opt=paths=source_relative --go-grpc_out=./pkg/apis/core/types --go-grpc_opt=paths=source_relative -I=./pkg/apis/core/sensor -I=./pkg/apis/core/integration ./pkg/apis/core/sensor/sensor.proto
 
+protoc_sensor:
+	protoc --go_out=./pkg/apis/core/types --go_opt=paths=source_relative --go-grpc_out=./pkg/apis/core/types --go-grpc_opt=paths=source_relative -I=./pkg/apis/core/sun -I=./pkg/apis/core/integration ./pkg/apis/core/sun/sun.proto
+
 go_build:
 	go build
 
