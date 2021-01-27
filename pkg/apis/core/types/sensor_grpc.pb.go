@@ -22,7 +22,7 @@ type SensorHandlerClient interface {
 	Update(ctx context.Context, in *Sensor, opts ...grpc.CallOption) (*Sensor, error)
 	Delete(ctx context.Context, in *Sensor, opts ...grpc.CallOption) (*Sensor, error)
 	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (SensorHandler_GetAllClient, error)
-	WatchAll(ctx context.Context, in *Sensor, opts ...grpc.CallOption) (SensorHandler_WatchAllClient, error)
+	WatchAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (SensorHandler_WatchAllClient, error)
 	SetValue(ctx context.Context, in *SetSensorValueRequest, opts ...grpc.CallOption) (*Sensor, error)
 }
 
@@ -102,7 +102,7 @@ func (x *sensorHandlerGetAllClient) Recv() (*Sensor, error) {
 	return m, nil
 }
 
-func (c *sensorHandlerClient) WatchAll(ctx context.Context, in *Sensor, opts ...grpc.CallOption) (SensorHandler_WatchAllClient, error) {
+func (c *sensorHandlerClient) WatchAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (SensorHandler_WatchAllClient, error) {
 	stream, err := c.cc.NewStream(ctx, &_SensorHandler_serviceDesc.Streams[1], "/types.SensorHandler/WatchAll", opts...)
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ type SensorHandlerServer interface {
 	Update(context.Context, *Sensor) (*Sensor, error)
 	Delete(context.Context, *Sensor) (*Sensor, error)
 	GetAll(*GetAllRequest, SensorHandler_GetAllServer) error
-	WatchAll(*Sensor, SensorHandler_WatchAllServer) error
+	WatchAll(*GetAllRequest, SensorHandler_WatchAllServer) error
 	SetValue(context.Context, *SetSensorValueRequest) (*Sensor, error)
 	mustEmbedUnimplementedSensorHandlerServer()
 }
@@ -176,7 +176,7 @@ func (UnimplementedSensorHandlerServer) Delete(context.Context, *Sensor) (*Senso
 func (UnimplementedSensorHandlerServer) GetAll(*GetAllRequest, SensorHandler_GetAllServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (UnimplementedSensorHandlerServer) WatchAll(*Sensor, SensorHandler_WatchAllServer) error {
+func (UnimplementedSensorHandlerServer) WatchAll(*GetAllRequest, SensorHandler_WatchAllServer) error {
 	return status.Errorf(codes.Unimplemented, "method WatchAll not implemented")
 }
 func (UnimplementedSensorHandlerServer) SetValue(context.Context, *SetSensorValueRequest) (*Sensor, error) {
@@ -289,7 +289,7 @@ func (x *sensorHandlerGetAllServer) Send(m *Sensor) error {
 }
 
 func _SensorHandler_WatchAll_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Sensor)
+	m := new(GetAllRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}

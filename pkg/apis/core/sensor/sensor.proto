@@ -20,7 +20,7 @@ service SensorHandler {
 message SetSensorValueRequest {
     string SensorName = 1;
     string integrationName = 2;
-    bool value = 3;
+    float value = 3;
 }
 
 message Sensor {
