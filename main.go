@@ -7,6 +7,7 @@ import (
 
 	"github.com/sundae-party/api-server/pkg/apis/core/integration"
 	"github.com/sundae-party/api-server/pkg/apis/core/light"
+	"github.com/sundae-party/api-server/pkg/apis/core/sensor"
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
 	"github.com/sundae-party/api-server/pkg/server"
 
@@ -50,10 +51,15 @@ func main() {
 	lh := &light.LightHandler{
 		Store: mongoStore,
 	}
+	// Create Sensor handler
+	sh := &sensor.SensorHandler{
+		Store: mongoStore,
+	}
 
 	// Add handlers to the server
 	types.RegisterIntegrationHandlerServer(grpcServer, ih)
 	types.RegisterLightHandlerServer(grpcServer, lh)
+	types.RegisterSensorHandlerServer(grpcServer, sh)
 
 	// GRPC servers listen
 	go grpcServer.Serve(tcpLis)

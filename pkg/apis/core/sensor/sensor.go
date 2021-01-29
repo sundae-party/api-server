@@ -8,15 +8,27 @@ import (
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
 	"github.com/sundae-party/api-server/pkg/storage"
 
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/peer"
+
 	store_type "github.com/sundae-party/api-server/pkg/storage/types"
 )
 
 type SensorHandler struct {
-	types.UnimplementedBinarySensorHandlerServer
+	types.UnimplementedSensorHandlerServer
 	Store storage.Store
 }
 
 func (sh SensorHandler) Get(ctx context.Context, s *types.Sensor) (*types.Sensor, error) {
+	peer, ok := peer.FromContext(ctx)
+	if ok {
+		mtls, ok := peer.AuthInfo.(credentials.TLSInfo)
+		if ok {
+			for _, item := range mtls.State.PeerCertificates {
+				log.Println(item.Subject)
+			}
+		}
+	}
 	key := fmt.Sprintf("%s/%s", s.Integration.Name, s.Name)
 	return sh.Store.GetSensorByName(ctx, key)
 }
@@ -43,7 +55,8 @@ func (sh SensorHandler) GetAll(r *types.GetAllRequest, stream types.SensorHandle
 	}
 	return nil
 }
-func (sh SensorHandler) WatchAll(s *types.Sensor, stream types.SensorHandler_WatchAllServer) error {
+
+func (sh SensorHandler) WatchAll(s *types.GetAllRequest, stream types.SensorHandler_WatchAllServer) error {
 	cs, err := sh.Store.GetEntityEvent(stream.Context(), "sensor")
 	if err != nil {
 		return err
@@ -78,5 +91,6 @@ func (sh SensorHandler) SetValue(ctx context.Context, r *types.SetSensorValueReq
 		},
 		Value: r.Value,
 	}
+	log.Printf("%s", sensor)
 	return sh.Store.UpdateSensorValue(ctx, sensor)
 }

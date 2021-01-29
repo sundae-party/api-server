@@ -92,9 +92,9 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	res, err := hub.store.GetAllEntities(r.Context(), "", "")
 	if err != nil {
 		client.send <- []byte(err.Error())
+		return
 	}
 	client.send <- res
-
 }
 
 // Create new hub object

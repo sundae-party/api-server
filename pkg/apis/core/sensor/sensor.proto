@@ -21,6 +21,7 @@ message SetSensorValueRequest {
     string SensorName = 1;
     string integrationName = 2;
     float value = 3;
+    string unit = 4;
 }
 
 message Sensor {
@@ -36,15 +37,14 @@ message Sensor {
         humidity = 2;           //% of humidity in the air
         illuminance = 3;        //light level in lx or lm
         signal_strength = 4;    //Signal strength in dB or dBm
-        temperature = 5;        //Temperature in °C or °F
+        temperature = 5;        //Temperature in °C, °F or K
         power = 6;              //Power in W or kW
         pressure = 7;           //Pressure in hPa or mbar
-        current = 9;            //Current in A
-        energy = 10;            //Energy in Wh or kWh
-        power_factor = 11;      //Power Factor in %
-        voltage = 12;           //Voltage in V
+        current = 8;            //Current in A
+        energy = 9;             //Energy in Wh or kWh
+        power_factor = 10;      //Power Factor in %
+        voltage = 11;           //Voltage in V
     }
     Class class = 7;
-    string unit = 8;
-    string mutation = 9;
+    string mutation = 8;
 }
