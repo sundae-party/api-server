@@ -33,6 +33,34 @@ func buildLightKey(light *types.Light) (key string, err error) {
 	return "", errors.New("Invalid light format, the integration infos is empty.")
 }
 
+func lightToDAOLight(light *types.Light) *lightDAO {
+	return &lightDAO{
+		Name:          light.Name,
+		Integration:   light.Integration.Name,
+		Device:        light.Device,
+		DisplayedName: light.DisplayedName,
+		Room:          light.Room,
+		DesiredState:  light.DesiredState,
+		State:         light.State,
+		Mutation:      lightKind,
+	}
+}
+
+func lightDAOToLight(lightDAO *lightDAO) *types.Light {
+	return &types.Light{
+		Name: lightDAO.Name,
+		Integration: &types.Integration{
+			Name: lightDAO.Integration,
+		},
+		Device:        lightDAO.Device,
+		DisplayedName: lightDAO.DisplayedName,
+		Room:          lightDAO.Room,
+		DesiredState:  lightDAO.DesiredState,
+		State:         lightDAO.State,
+		Mutation:      lightKind,
+	}
+}
+
 //
 //
 // Light store function
@@ -48,16 +76,7 @@ func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.L
 	}
 
 	// Convert light to light DAO
-	l := lightDAO{
-		Name:          light.Name,
-		Integration:   light.Integration.Name,
-		Device:        light.Device,
-		DisplayedName: light.DisplayedName,
-		Room:          light.Room,
-		DesiredState:  light.DesiredState,
-		State:         light.State,
-		Mutation:      lightKind,
-	}
+	l := lightToDAOLight(light)
 	// Ensure kind is set to Light
 	//light.Mutation = lightKind
 
@@ -70,25 +89,14 @@ func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.L
 		return nil, err
 	}
 
-	var newLightDAO lightDAO
-	err = res.Decode(&newLightDAO)
+	newLightDAO := &lightDAO{}
+	err = res.Decode(newLightDAO)
 	if err != nil {
 		return nil, err
 	}
-	newLight := types.Light{
-		Name: light.Name,
-		Integration: &types.Integration{
-			Name: newLightDAO.Integration,
-		},
-		Device:        light.Device,
-		DisplayedName: light.DisplayedName,
-		Room:          light.Room,
-		DesiredState:  light.DesiredState,
-		State:         light.State,
-		Mutation:      lightKind,
-	}
+	newLight := lightDAOToLight(newLightDAO)
 
-	return &newLight, nil
+	return newLight, nil
 }
 
 // The key must be formated with "intergrationName/lightName" and can't be empty
