@@ -1,9 +1,6 @@
-package server
+package mux
 
 import (
-	"crypto/tls"
-	"crypto/x509"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -14,6 +11,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/sundae-party/api-server/pkg/server/utils"
 	"github.com/sundae-party/api-server/pkg/storage"
 )
 
@@ -151,22 +149,11 @@ func Serve(srvConf ServerConfig, store *storage.Store) {
 			srvCount++
 		}
 
-		// Setting MTLS
+		// Setting MTLS and SSL termination
 		if srvConf.EnableMTLS {
-			caCertPool := x509.NewCertPool()
-			// Create a CA certificate pool with all Client CAs listed in srvConf.ClientCAsPath
-			for _, caPath := range srvConf.ClientCAsPath {
-				caCert, err := ioutil.ReadFile(caPath)
-				if err != nil {
-					log.Fatal(err)
-				}
-				caCertPool.AppendCertsFromPEM(caCert)
-			}
-
-			// Create the TLS Config with the CA pool and enable Client certificate validation
-			tlsConfig := &tls.Config{
-				ClientCAs:  caCertPool,
-				ClientAuth: tls.RequireAndVerifyClientCert,
+			tlsConfig, err := utils.BuildTlsConf(srvConf.ClientCAsPath, srvConf.CertPath, srvConf.KeyPath)
+			if err != nil {
+				log.Fatal(err)
 			}
 			tlsConfig.BuildNameToCertificate()
 			httpsServer.TLSConfig = tlsConfig
@@ -190,7 +177,7 @@ func Serve(srvConf ServerConfig, store *storage.Store) {
 	if srvConf.ServerMode == HTTPSMode {
 		go func() {
 			log.Printf("Listening on %s\n", srvConf.HTTPSAddr)
-			log.Fatal(httpsServer.ListenAndServeTLS(srvConf.CertPath, srvConf.KeyPath))
+			log.Fatal(httpsServer.ListenAndServeTLS("", ""))
 			wg.Done()
 		}()
 	}

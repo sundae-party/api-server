@@ -12,6 +12,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+type lightDAO struct {
+	Name          string
+	Integration   string
+	Device        string
+	DisplayedName string
+	Room          string
+	DesiredState  *types.LightState
+	State         *types.LightState
+	Mutation      string
+}
+
 func buildLightKey(light *types.Light) (key string, err error) {
 	if light.Integration != nil {
 		if light.Integration.Name != "" && light.Name != "" {
@@ -36,11 +47,22 @@ func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.L
 		return nil, err
 	}
 
+	// Convert light to light DAO
+	l := lightDAO{
+		Name:          light.Name,
+		Integration:   light.Integration.Name,
+		Device:        light.Device,
+		DisplayedName: light.DisplayedName,
+		Room:          light.Room,
+		DesiredState:  light.DesiredState,
+		State:         light.State,
+		Mutation:      lightKind,
+	}
 	// Ensure kind is set to Light
-	light.Mutation = lightKind
+	//light.Mutation = lightKind
 
 	// Convert light to bson object
-	bsonLight, err := bson.Marshal(light)
+	bsonLight, err := bson.Marshal(l)
 
 	// Put the light in the store
 	res, err := ms.putEntity(ctx, key, bsonLight)
@@ -48,10 +70,22 @@ func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.L
 		return nil, err
 	}
 
-	var newLight types.Light
-	err = res.Decode(&newLight)
+	var newLightDAO lightDAO
+	err = res.Decode(&newLightDAO)
 	if err != nil {
 		return nil, err
+	}
+	newLight := types.Light{
+		Name: light.Name,
+		Integration: &types.Integration{
+			Name: newLightDAO.Integration,
+		},
+		Device:        light.Device,
+		DisplayedName: light.DisplayedName,
+		Room:          light.Room,
+		DesiredState:  light.DesiredState,
+		State:         light.State,
+		Mutation:      lightKind,
 	}
 
 	return &newLight, nil
