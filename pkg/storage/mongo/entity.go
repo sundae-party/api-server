@@ -33,7 +33,7 @@ func (ms MongoStore) putEntity(ctx context.Context, key string, entity []byte) (
 	//	{"integration": int2, "name": "ent1"} Ok
 	//
 	filter := bson.D{
-		{Key: "integration", Value: integrationName},
+		{Key: "integrationname", Value: integrationName},
 		{Key: "name", Value: entityName},
 	}
 
@@ -59,7 +59,7 @@ func (ms MongoStore) getEntityByName(ctx context.Context, key string) (*mongo.Si
 
 	// Select the entity with it's unique name
 	filter := bson.D{
-		{Key: "integration.name", Value: integrationName},
+		{Key: "integrationname", Value: integrationName},
 		{Key: "name", Value: entityName},
 	}
 
@@ -85,7 +85,7 @@ func (ms MongoStore) getAllEntities(c context.Context, kind string, integrationN
 		filter = append(filter, bson.E{Key: "mutation", Value: kind})
 	}
 	if integrationName != "" {
-		filter = append(filter, bson.E{Key: "integration.name", Value: integrationName})
+		filter = append(filter, bson.E{Key: "integrationname", Value: integrationName})
 	}
 
 	// Get all entity
@@ -110,7 +110,7 @@ func (ms MongoStore) GetAllEntities(c context.Context, kind string, integrationN
 		filter = append(filter, bson.E{Key: "mutation", Value: kind})
 	}
 	if integrationName != "" {
-		filter = append(filter, bson.E{Key: "integration.name", Value: integrationName})
+		filter = append(filter, bson.E{Key: "integrationname", Value: integrationName})
 	}
 
 	// Get all entity
@@ -147,7 +147,7 @@ func (ms MongoStore) deleteEntity(ctx context.Context, key string) (*mongo.Singl
 
 	// Select the entity with it's unique name
 	filter := bson.D{
-		{Key: "integration.name", Value: integrationName},
+		{Key: "integrationname", Value: integrationName},
 		{Key: "name", Value: entityName},
 	}
 
@@ -172,7 +172,7 @@ func (ms MongoStore) updateEntityState(ctx context.Context, key string, state bs
 
 	// Select the entity with it's unique name
 	filter := bson.D{
-		{Key: "integration.name", Value: integrationName},
+		{Key: "integrationname", Value: integrationName},
 		{Key: "name", Value: entityName},
 	}
 
