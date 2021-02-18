@@ -103,7 +103,7 @@ func initDb(c context.Context, db *mongo.Database) error {
 	ientityCollection := db.Collection(entityCollection)
 	entityIndex := mongo.IndexModel{
 		Keys: bson.D{
-			{Key: "integration.name", Value: 1},
+			{Key: "integrationname", Value: 1},
 			{Key: "name", Value: 2},
 		},
 		Options: options.Index().SetUnique(true),

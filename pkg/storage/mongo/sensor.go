@@ -13,13 +13,10 @@ import (
 )
 
 func buildSensortKey(sensor *types.Sensor) (key string, err error) {
-	if sensor.Integration != nil {
-		if sensor.Integration.Name != "" && sensor.Name != "" {
-			return fmt.Sprintf("%s/%s", sensor.Integration.Name, sensor.Name), nil
-		}
-		return "", errors.New("Invalid sensor format, the integration name or sensor name is missing.")
+	if sensor.IntegrationName != "" && sensor.Name != "" {
+		return fmt.Sprintf("%s/%s", sensor.IntegrationName, sensor.Name), nil
 	}
-	return "", errors.New("Invalid sensor format, the integration infos is empty.")
+	return "", errors.New("Invalid sensor format, the integration name or sensor name is missing.")
 }
 
 //
@@ -111,7 +108,7 @@ func (ms MongoStore) GetSensorByIntegration(c context.Context, integrationName s
 
 // Delete a Sensor in the store
 func (ms MongoStore) DeleteSensor(ctx context.Context, Sensor *types.Sensor) (*types.Sensor, error) {
-	key := fmt.Sprintf("%s/%s", Sensor.Integration.Name, Sensor.Name)
+	key := fmt.Sprintf("%s/%s", Sensor.IntegrationName, Sensor.Name)
 
 	res, err := ms.deleteEntity(ctx, key)
 	if err != nil {
@@ -133,7 +130,7 @@ func (ms MongoStore) UpdateSensorValue(ctx context.Context, Sensor *types.Sensor
 	// Convert Sensor value to bson object
 	bsonSensorState := bson.M{"value": Sensor.Value}
 
-	key := fmt.Sprintf("%s/%s", Sensor.Integration.Name, Sensor.Name)
+	key := fmt.Sprintf("%s/%s", Sensor.IntegrationName, Sensor.Name)
 
 	// Try to update Sensor
 	res, err := ms.updateEntityState(ctx, key, bsonSensorState)

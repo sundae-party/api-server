@@ -17,7 +17,7 @@ type SensorHandler struct {
 }
 
 func (sh SensorHandler) Get(ctx context.Context, s *types.Sensor) (*types.Sensor, error) {
-	key := fmt.Sprintf("%s/%s", s.Integration.Name, s.Name)
+	key := fmt.Sprintf("%s/%s", s.IntegrationName, s.Name)
 	return sh.Store.GetSensorByName(ctx, key)
 }
 func (sh SensorHandler) Create(ctx context.Context, s *types.Sensor) (*types.Sensor, error) {
@@ -73,13 +73,14 @@ func (sh SensorHandler) WatchAll(s *types.GetAllRequest, stream types.SensorHand
 }
 func (sh SensorHandler) SetValue(ctx context.Context, r *types.SetSensorValueRequest) (*types.Sensor, error) {
 
+	// TODO check if unit is valid for the sensor class
+
 	// update value
 	sensor := &types.Sensor{
-		Name: r.SensorName,
-		Integration: &types.Integration{
-			Name: r.IntegrationName,
-		},
-		Value: r.Value,
+		Name:            r.SensorName,
+		IntegrationName: r.IntegrationName,
+		Value:           r.Value,
+		Unit:            r.Unit,
 	}
 	log.Printf("%s", sensor)
 	return sh.Store.UpdateSensorValue(ctx, sensor)

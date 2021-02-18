@@ -33,7 +33,7 @@ func (ms MongoStore) putEntity(ctx context.Context, key string, entity []byte) (
 	//	{"integration": int2, "name": "ent1"} Ok
 	//
 	filter := bson.D{
-		{Key: "integration.name", Value: integrationName},
+		{Key: "integration", Value: integrationName},
 		{Key: "name", Value: entityName},
 	}
 

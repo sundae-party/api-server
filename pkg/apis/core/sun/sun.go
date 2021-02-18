@@ -18,7 +18,7 @@ func (sh SunHandler) Get(ctx context.Context, sr *types.SunRequest) (*types.Sun,
 	return sh.Store.GetSun(ctx)
 }
 func (sh SunHandler) Create(ctx context.Context, sun *types.Sun) (*types.Sun, error) {
-	return sh.Store.PutSun(ctx, sun.GetState(), sun.GetIntegration())
+	return sh.Store.PutSun(ctx, sun.GetState())
 }
 func (sh SunHandler) Delete(ctx context.Context, sr *types.SunRequest) (*types.Sun, error) {
 	return sh.Store.DeleteSun(ctx)

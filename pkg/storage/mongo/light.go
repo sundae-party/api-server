@@ -12,53 +12,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type lightDAO struct {
-	Name          string
-	Integration   string
-	Device        string
-	DisplayedName string
-	Room          string
-	DesiredState  *types.LightState
-	State         *types.LightState
-	Mutation      string
-}
-
 func buildLightKey(light *types.Light) (key string, err error) {
-	if light.Integration != nil {
-		if light.Integration.Name != "" && light.Name != "" {
-			return fmt.Sprintf("%s/%s", light.Integration.Name, light.Name), nil
-		}
-		return "", errors.New("Invalid light format, the integration name or light name is missing.")
+	if light.IntegrationName != "" && light.Name != "" {
+		return fmt.Sprintf("%s/%s", light.IntegrationName, light.Name), nil
 	}
-	return "", errors.New("Invalid light format, the integration infos is empty.")
-}
-
-func lightToDAOLight(light *types.Light) *lightDAO {
-	return &lightDAO{
-		Name:          light.Name,
-		Integration:   light.Integration.Name,
-		Device:        light.Device,
-		DisplayedName: light.DisplayedName,
-		Room:          light.Room,
-		DesiredState:  light.DesiredState,
-		State:         light.State,
-		Mutation:      lightKind,
-	}
-}
-
-func lightDAOToLight(lightDAO *lightDAO) *types.Light {
-	return &types.Light{
-		Name: lightDAO.Name,
-		Integration: &types.Integration{
-			Name: lightDAO.Integration,
-		},
-		Device:        lightDAO.Device,
-		DisplayedName: lightDAO.DisplayedName,
-		Room:          lightDAO.Room,
-		DesiredState:  lightDAO.DesiredState,
-		State:         lightDAO.State,
-		Mutation:      lightKind,
-	}
+	return "", errors.New("Invalid light format, the integration name or light name is missing.")
 }
 
 //
@@ -75,13 +33,11 @@ func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.L
 		return nil, err
 	}
 
-	// Convert light to light DAO
-	l := lightToDAOLight(light)
 	// Ensure kind is set to Light
-	//light.Mutation = lightKind
+	light.Mutation = lightKind
 
 	// Convert light to bson object
-	bsonLight, err := bson.Marshal(l)
+	bsonLight, err := bson.Marshal(light)
 
 	// Put the light in the store
 	res, err := ms.putEntity(ctx, key, bsonLight)
@@ -89,12 +45,11 @@ func (ms MongoStore) PutLight(ctx context.Context, light *types.Light) (*types.L
 		return nil, err
 	}
 
-	newLightDAO := &lightDAO{}
-	err = res.Decode(newLightDAO)
+	newLight := &types.Light{}
+	err = res.Decode(newLight)
 	if err != nil {
 		return nil, err
 	}
-	newLight := lightDAOToLight(newLightDAO)
 
 	return newLight, nil
 }
@@ -153,7 +108,7 @@ func (ms MongoStore) GetLightByIntegration(c context.Context, integrationName st
 
 // Delete a light in the store
 func (ms MongoStore) DeleteLight(ctx context.Context, light *types.Light) (*types.Light, error) {
-	key := fmt.Sprintf("%s/%s", light.Integration.Name, light.Name)
+	key := fmt.Sprintf("%s/%s", light.IntegrationName, light.Name)
 
 	res, err := ms.deleteEntity(ctx, key)
 	if err != nil {
@@ -175,7 +130,7 @@ func (ms MongoStore) UpdateLightState(ctx context.Context, light *types.Light) (
 	// Convert light state to bson object
 	bsonLightState := bson.M{"state": light.State}
 
-	key := fmt.Sprintf("%s/%s", light.Integration.Name, light.Name)
+	key := fmt.Sprintf("%s/%s", light.IntegrationName, light.Name)
 
 	// Try to update light
 	res, err := ms.updateEntityState(ctx, key, bsonLightState)
@@ -198,7 +153,7 @@ func (ms MongoStore) UpdateLightStateDesiredState(ctx context.Context, light *ty
 	// Convert light state to bson object
 	bsonLightState := bson.M{"desiredstate": light.DesiredState}
 
-	key := fmt.Sprintf("%s/%s", light.Integration.Name, light.Name)
+	key := fmt.Sprintf("%s/%s", light.IntegrationName, light.Name)
 
 	// Try to update light
 	res, err := ms.updateEntityState(ctx, key, bsonLightState)

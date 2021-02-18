@@ -13,13 +13,10 @@ import (
 )
 
 func buildBinarySensortKey(binarySensor *types.BinarySensor) (key string, err error) {
-	if binarySensor.Integration != nil {
-		if binarySensor.Integration.Name != "" && binarySensor.Name != "" {
-			return fmt.Sprintf("%s/%s", binarySensor.Integration.Name, binarySensor.Name), nil
-		}
-		return "", errors.New("Invalid binary sensor format, the integration name or binary sensor name is missing.")
+	if binarySensor.IntegrationName != "" && binarySensor.Name != "" {
+		return fmt.Sprintf("%s/%s", binarySensor.IntegrationName, binarySensor.Name), nil
 	}
-	return "", errors.New("Invalid binary sensor format, the integration infos is empty.")
+	return "", errors.New("Invalid binary sensor format, the integration name or binary sensor name is missing.")
 }
 
 //
@@ -111,7 +108,7 @@ func (ms MongoStore) GetBinarySensorByIntegration(c context.Context, integration
 
 // Delete a BinarySensor in the store
 func (ms MongoStore) DeleteBinarySensor(ctx context.Context, BinarySensor *types.BinarySensor) (*types.BinarySensor, error) {
-	key := fmt.Sprintf("%s/%s", BinarySensor.Integration.Name, BinarySensor.Name)
+	key := fmt.Sprintf("%s/%s", BinarySensor.IntegrationName, BinarySensor.Name)
 
 	res, err := ms.deleteEntity(ctx, key)
 	if err != nil {
@@ -133,7 +130,7 @@ func (ms MongoStore) UpdateBinarySensorState(ctx context.Context, BinarySensor *
 	// Convert BinarySensor state to bson object
 	bsonBinarySensorState := bson.M{"state": BinarySensor.State}
 
-	key := fmt.Sprintf("%s/%s", BinarySensor.Integration.Name, BinarySensor.Name)
+	key := fmt.Sprintf("%s/%s", BinarySensor.IntegrationName, BinarySensor.Name)
 
 	// Try to update BinarySensor
 	res, err := ms.updateEntityState(ctx, key, bsonBinarySensorState)

@@ -66,8 +66,8 @@ func TestGetAll(t *testing.T) {
 	lh := types.NewLightHandlerClient(conn)
 
 	// Insert mock light
-	mockLight1 := &types.Light{Name: "l1", Integration: &types.Integration{Name: "i1"}}
-	mockLight2 := &types.Light{Name: "l2", Integration: &types.Integration{Name: "i1"}}
+	mockLight1 := &types.Light{Name: "l1", IntegrationName: "i1"}
+	mockLight2 := &types.Light{Name: "l2", IntegrationName: "i1"}
 
 	l1, err := lh.Create(ctx, mockLight1)
 	if err != nil {

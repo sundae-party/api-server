@@ -26,7 +26,7 @@ message SetSensorValueRequest {
 
 message Sensor {
     string name = 1;
-    types.Integration integration = 2;
+    string integration_name = 2;
     string Device = 3;
     string displayed_name = 4;
     string room = 5;
@@ -46,5 +46,6 @@ message Sensor {
         voltage = 11;           //Voltage in V
     }
     Class class = 7;
-    string mutation = 8;
+    string unit = 8;
+    string mutation = 9;
 }

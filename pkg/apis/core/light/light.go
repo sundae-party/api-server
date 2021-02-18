@@ -66,21 +66,17 @@ func (lh LightHandler) WatchAll(r *types.GetAllRequest, stream types.LightHandle
 
 func (lh LightHandler) SetDesiredState(ctx context.Context, lsr *types.SetLightStateRequest) (*types.Light, error) {
 	lightRequest := &types.Light{
-		Name: lsr.LightName,
-		Integration: &types.Integration{
-			Name: lsr.IntegrationName,
-		},
-		DesiredState: lsr.State,
+		Name:            lsr.LightName,
+		IntegrationName: lsr.IntegrationName,
+		DesiredState:    lsr.State,
 	}
 	return lh.Store.UpdateLightStateDesiredState(ctx, lightRequest)
 }
 func (lh LightHandler) SetState(ctx context.Context, lsr *types.SetLightStateRequest) (*types.Light, error) {
 	lightRequest := &types.Light{
-		Name: lsr.LightName,
-		Integration: &types.Integration{
-			Name: lsr.IntegrationName,
-		},
-		DesiredState: lsr.State,
+		Name:            lsr.LightName,
+		IntegrationName: lsr.IntegrationName,
+		DesiredState:    lsr.State,
 	}
 	return lh.Store.UpdateLightState(ctx, lightRequest)
 

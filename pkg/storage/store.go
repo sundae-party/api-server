@@ -64,7 +64,7 @@ type Store interface {
 	UpdateSensorValue(ctx context.Context, Sensor *types.Sensor) (*types.Sensor, error)
 
 	// Sun
-	PutSun(ctx context.Context, sunState *types.SunState, integration *types.Integration) (*types.Sun, error)
+	PutSun(ctx context.Context, sunState *types.SunState) (*types.Sun, error)
 	GetSun(c context.Context) (*types.Sun, error)
 	DeleteSun(ctx context.Context) (*types.Sun, error)
 	UpdateSunState(ctx context.Context, state *types.SunState) (*types.Sun, error)

@@ -26,7 +26,7 @@ message SetLightStateRequest {
 
 message Light {
     string name = 1;
-    types.Integration integration = 2;
+    string integration_name = 2;
     string Device = 3;
     string displayed_name = 4;
     string room = 5;

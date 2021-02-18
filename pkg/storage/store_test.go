@@ -229,7 +229,7 @@ func TestCreateInvalidLight(t *testing.T) {
 	ctx := context.Background()
 
 	invalidMockLight1 := &types.Light{Name: "l1"}
-	invalidMockLight2 := &types.Light{Integration: &types.Integration{Name: "i1"}}
+	invalidMockLight2 := &types.Light{IntegrationName: "i1"}
 
 	l1, err := m_store.PutLight(ctx, invalidMockLight1)
 	if err != nil {
@@ -252,8 +252,8 @@ func TestGetAllLight(t *testing.T) {
 
 	ctx := context.Background()
 
-	mockLight1 := &types.Light{Name: "l1", Integration: &types.Integration{Name: "i1"}}
-	mockLight2 := &types.Light{Name: "l2", Integration: &types.Integration{Name: "i1"}}
+	mockLight1 := &types.Light{Name: "l1", IntegrationName: "i1"}
+	mockLight2 := &types.Light{Name: "l2", IntegrationName: "i1"}
 
 	// Create mock light
 	l1, err := m_store.PutLight(ctx, mockLight1)
@@ -310,8 +310,8 @@ func TestGetAllBinarySensor(t *testing.T) {
 
 	ctx := context.Background()
 
-	mockBinarySensor1 := &types.BinarySensor{Name: "bs1", Integration: &types.Integration{Name: "i1"}}
-	mockBinarySensor2 := &types.BinarySensor{Name: "bs2", Integration: &types.Integration{Name: "i1"}}
+	mockBinarySensor1 := &types.BinarySensor{Name: "bs1", IntegrationName: "i1"}
+	mockBinarySensor2 := &types.BinarySensor{Name: "bs2", IntegrationName: "i1"}
 
 	// Create mock binary sensor
 	bs1, err := m_store.PutBinarySensor(ctx, mockBinarySensor1)
@@ -365,8 +365,8 @@ func TestGetAllSensor(t *testing.T) {
 
 	ctx := context.Background()
 
-	mockSensor1 := &types.Sensor{Name: "s1", Integration: &types.Integration{Name: "i1"}}
-	mockSensor2 := &types.Sensor{Name: "s2", Integration: &types.Integration{Name: "i1"}}
+	mockSensor1 := &types.Sensor{Name: "s1", IntegrationName: "i1"}
+	mockSensor2 := &types.Sensor{Name: "s2", IntegrationName: "i1"}
 
 	// Create mock sensor
 	s1, err := m_store.PutSensor(ctx, mockSensor1)
@@ -431,10 +431,9 @@ func TestGetSun(t *testing.T) {
 		Azimuth:      36.12,
 		State:        types.SunState_above_horizon,
 	}
-	mockIntegration := &types.Integration{Name: "sun"}
 
 	// Create mock sun
-	_, err := m_store.PutSun(ctx, mockSunState, mockIntegration)
+	_, err := m_store.PutSun(ctx, mockSunState)
 	if err != nil {
 		t.Fatalf("Fail to create mock sun %s", err)
 	}
@@ -451,7 +450,7 @@ func TestGetSun(t *testing.T) {
 		t.Fatalf("Error Deleting the sun -> \n%s\n", err)
 	}
 
-	if sun.Name != "sun" || sun.Integration.Name != "sun" || sun.Mutation != "sun" {
+	if sun.Name != "sun" || sun.IntegrationName != "sun" || sun.Mutation != "sun" {
 		t.Errorf("TestGetSun Error, sun invalid format, name, integration name and mutation sould be sun but have => %s", sun)
 	}
 	if !reflect.DeepEqual(mockSunState, sun.State) {

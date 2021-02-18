@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package types;
 
-import "integration.proto";
-
 option go_package = "github.com/sundae-party/api-server/pkg/apis/core/types";
 
 service SunHandler {
@@ -14,7 +12,6 @@ service SunHandler {
     rpc Watch (SunRequest) returns (stream Sun);
     rpc SetState (SunState) returns (Sun);
 }
-
 
 message SunRequest {
     // intentionally empty
@@ -36,7 +33,7 @@ message SunState {
 
 message Sun {
     string name = 1;
-    types.Integration integration = 2;
+    string integration_name = 2;
     string displayed_name = 4;
     SunState state = 6;
     string mutation = 9;

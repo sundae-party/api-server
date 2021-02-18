@@ -18,14 +18,14 @@ const sunKey = "sun/sun"
 //
 
 // PutSun create or update the Sun sensor in the store for the home.
-func (ms MongoStore) PutSun(ctx context.Context, sunState *types.SunState, integration *types.Integration) (*types.Sun, error) {
+func (ms MongoStore) PutSun(ctx context.Context, sunState *types.SunState) (*types.Sun, error) {
 
 	sun := &types.Sun{
-		Name:          "sun",
-		Integration:   integration,
-		DisplayedName: "sun",
-		State:         sunState,
-		Mutation:      sunKind,
+		Name:            "sun",
+		IntegrationName: "sun",
+		DisplayedName:   "sun",
+		State:           sunState,
+		Mutation:        sunKind,
 	}
 
 	// Convert Sun to bson object
