@@ -2,9 +2,11 @@ package light
 
 import (
 	context "context"
+	"fmt"
 	"log"
 
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
+	"github.com/sundae-party/api-server/pkg/server/utils"
 	"github.com/sundae-party/api-server/pkg/storage"
 	store_type "github.com/sundae-party/api-server/pkg/storage/types"
 )
@@ -15,17 +17,32 @@ type LightHandler struct {
 }
 
 func (lh LightHandler) Get(ctx context.Context, l *types.Light) (*types.Light, error) {
-	return lh.Store.GetLightByName(ctx, l.Name)
+	key := fmt.Sprintf("%s/%s", l.IntegrationName, l.Name)
+	return lh.Store.GetLightByName(ctx, key)
 }
+
 func (lh LightHandler) Create(ctx context.Context, l *types.Light) (*types.Light, error) {
+	_, integrationName, err := utils.GetClientAuthInformationFromCert(ctx)
+	if err != nil {
+		return nil, err
+	}
+	l.IntegrationName = integrationName
 	return lh.Store.PutLight(ctx, l)
 }
+
 func (lh LightHandler) Update(ctx context.Context, l *types.Light) (*types.Light, error) {
 	return lh.Store.UpdateLightState(ctx, l)
 }
+
 func (lh LightHandler) Delete(ctx context.Context, l *types.Light) (*types.Light, error) {
+	_, integrationName, err := utils.GetClientAuthInformationFromCert(ctx)
+	if err != nil {
+		return nil, err
+	}
+	l.IntegrationName = integrationName
 	return lh.Store.DeleteLight(ctx, l)
 }
+
 func (lh LightHandler) GetAll(_ *types.GetAllRequest, stream types.LightHandler_GetAllServer) error {
 	lights, err := lh.Store.GetAllLight(stream.Context())
 	if err != nil {
@@ -36,6 +53,7 @@ func (lh LightHandler) GetAll(_ *types.GetAllRequest, stream types.LightHandler_
 	}
 	return nil
 }
+
 func (lh LightHandler) WatchAll(r *types.GetAllRequest, stream types.LightHandler_WatchAllServer) error {
 	cs, err := lh.Store.GetEntityEvent(stream.Context(), "light")
 	if err != nil {
@@ -72,6 +90,7 @@ func (lh LightHandler) SetDesiredState(ctx context.Context, lsr *types.SetLightS
 	}
 	return lh.Store.UpdateLightStateDesiredState(ctx, lightRequest)
 }
+
 func (lh LightHandler) SetState(ctx context.Context, lsr *types.SetLightStateRequest) (*types.Light, error) {
 	lightRequest := &types.Light{
 		Name:            lsr.LightName,

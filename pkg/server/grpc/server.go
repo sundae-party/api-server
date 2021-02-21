@@ -1,11 +1,8 @@
 package grpc
 
 import (
-	"context"
-	"errors"
 	"log"
 	"net"
-	"strings"
 
 	"github.com/sundae-party/api-server/pkg/apis/core/integration"
 	"github.com/sundae-party/api-server/pkg/apis/core/light"
@@ -15,7 +12,6 @@ import (
 	"github.com/sundae-party/api-server/pkg/storage"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/peer"
 )
 
 type service struct {
@@ -31,7 +27,7 @@ func CreateServer(clientCAsPath []string, certPath string, ceyPath string, store
 
 	grpcServer := grpc.NewServer(
 		grpc.Creds(credentials.NewTLS(tlsConfig)),
-		grpc.UnaryInterceptor(getIntegrationFromCert),
+		//grpc.UnaryInterceptor(getIntegrationFromCert),
 	)
 
 	// Create Integration handler object
@@ -74,31 +70,4 @@ func CreateServer(clientCAsPath []string, certPath string, ceyPath string, store
 		//grpcServer.Serve(sockLis)
 	}()
 
-}
-
-func getIntegrationFromCert(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-	// Test getting integration name from client cert
-	peer, ok := peer.FromContext(ctx)
-	if ok {
-		mtls, ok := peer.AuthInfo.(credentials.TLSInfo)
-		if ok {
-			// get cn from mtls cert
-			cn := mtls.State.PeerCertificates[0].Subject.CommonName
-			// get integration name from cn
-			cliInfos := strings.Split(cn, ":")
-			if len(cliInfos) != 2 && cliInfos[0] != "integration" {
-				return nil, errors.New("Invalid integration CN format in the cli mtls cert.")
-			}
-			// info.Server return server handler containing the store to use to get the integration object
-			// store := info.Server.(service)
-			// integration, err := store.GetIntegration(ctx, cliInfos[1])
-			// if err != nil {
-			// 	return nil, err
-			// }
-			log.Printf("%s \n", cliInfos[1])
-		}
-	}
-
-	//metadata.AppendToOutgoingContext(ctx, )
-	return handler(ctx, req)
 }
