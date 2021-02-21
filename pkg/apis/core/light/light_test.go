@@ -121,6 +121,7 @@ func TestGetAll(t *testing.T) {
 			}
 			t.Fatalf("TestGetAll failed reading stream resp: %s", err)
 		}
+		// TODO : get cert cn and check if light.integrationName == cert cn
 		if light.Name == mockLight1.Name {
 			count++
 		}
