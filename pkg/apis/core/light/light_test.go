@@ -6,11 +6,15 @@ import (
 	"log"
 	"net"
 	"os"
+	"path"
+	"runtime"
 	"testing"
 
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
+	"github.com/sundae-party/api-server/pkg/server/utils"
 	"github.com/sundae-party/api-server/pkg/storage"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -19,6 +23,7 @@ const bufSize = 1024 * 1024
 var lis *bufconn.Listener
 
 func init() {
+	rootDir()
 	// Create new mongo store
 	mongo := &storage.StoreOption{
 		Type:     "mongo",
@@ -35,7 +40,11 @@ func init() {
 	}
 	// Create mock grpc server
 	lis = bufconn.Listen(bufSize)
-	s := grpc.NewServer()
+	tlsConfig, err := utils.BuildServerTlsConf([]string{"ssl/ca.pem"}, "ssl/sundae-apiserver.pem", "ssl/sundae-apiserver.key")
+	if err != nil {
+		log.Fatal(err)
+	}
+	s := grpc.NewServer(grpc.Creds(credentials.NewTLS(tlsConfig)))
 	lh := &LightHandler{
 		Store: mongoStore,
 	}
@@ -53,16 +62,33 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return lis.Dial()
 }
 
+func rootDir() {
+	_, b, _, _ := runtime.Caller(0)
+	dir := path.Join(path.Dir(b), "../../../../")
+	err := os.Chdir(dir)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func TestGetAll(t *testing.T) {
 
 	// Prepare GRPC client
 	ctx := context.Background()
-	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	// Build tls client conf
+
+	cliTlsConf, err := utils.LoadKeyPair("ssl/integration01.pem", "ssl/integration01.key", "ssl/ca.pem")
+	if err != nil {
+		t.Fatalf("TestGetAll failed, gRPC, failed to create client tls config: %v", err)
+	}
+	// Create grpc connexion with tls conf
+	conn, err := grpc.DialContext(ctx, "sundae.com", grpc.WithContextDialer(bufDialer), grpc.WithTransportCredentials(cliTlsConf))
 	if err != nil {
 		t.Fatalf("TestGetAll failed, gRPC, failed to dial bufnet: %v", err)
 	}
 	defer conn.Close()
 
+	// Create new client handler client
 	lh := types.NewLightHandlerClient(conn)
 
 	// Insert mock light
@@ -91,18 +117,15 @@ func TestGetAll(t *testing.T) {
 			if err == io.EOF {
 				// End of stream
 				// This Recv method returns (nil, io.EOF) once the server-to-client stream has been completely read through.
-				log.Println("End of stream")
 				break
 			}
 			t.Fatalf("TestGetAll failed reading stream resp: %s", err)
 		}
 		if light.Name == mockLight1.Name {
 			count++
-			log.Printf("%s", light)
 		}
 		if light.Name == mockLight2.Name {
 			count++
-			log.Printf("%s", light)
 		}
 	}
 

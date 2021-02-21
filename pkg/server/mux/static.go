@@ -151,7 +151,7 @@ func Serve(srvConf ServerConfig, store *storage.Store) {
 
 		// Setting MTLS and SSL termination
 		if srvConf.EnableMTLS {
-			tlsConfig, err := utils.BuildTlsConf(srvConf.ClientCAsPath, srvConf.CertPath, srvConf.KeyPath)
+			tlsConfig, err := utils.BuildServerTlsConf(srvConf.ClientCAsPath, srvConf.CertPath, srvConf.KeyPath)
 			if err != nil {
 				log.Fatal(err)
 			}

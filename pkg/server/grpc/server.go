@@ -20,7 +20,7 @@ type service struct {
 
 func CreateServer(clientCAsPath []string, certPath string, ceyPath string, store storage.Store) {
 
-	tlsConfig, err := utils.BuildTlsConf(clientCAsPath, certPath, ceyPath)
+	tlsConfig, err := utils.BuildServerTlsConf(clientCAsPath, certPath, ceyPath)
 	if err != nil {
 		log.Fatal(err)
 	}
