@@ -56,7 +56,7 @@ func TestPutIntegration(t *testing.T) {
 		},
 	}
 
-	t.Logf("Creating new integration\n")
+	// Creating new integration
 	ni, err := m_store.PutIntegration(ctx, iOk)
 	if err != nil {
 		t.Logf("%s", err)
@@ -64,7 +64,6 @@ func TestPutIntegration(t *testing.T) {
 	}
 
 	// Test update
-	t.Logf("Updating integration\n")
 	ni.State.Connected = false
 	ui, err := m_store.PutIntegration(ctx, ni)
 	if err != nil {
@@ -72,12 +71,11 @@ func TestPutIntegration(t *testing.T) {
 		t.Error(err)
 	}
 
-	t.Logf("Deleting the integration\n")
-	res, err := m_store.DeleteIntegration(ctx, iOk)
+	// Delete
+	_, err = m_store.DeleteIntegration(ctx, iOk)
 	if err != nil {
 		t.Fatalf("Error Deleting the integration -> \n%s\n", err)
 	}
-	t.Log(res)
 }
 
 func TestGetIntegration(t *testing.T) {
@@ -99,13 +97,13 @@ func TestGetIntegration(t *testing.T) {
 		},
 	}
 
-	t.Logf("Creating new integration\n")
+	// Creating new integration
 	ni, err := m_store.PutIntegration(ctx, iOk)
 	if err != nil {
 		t.Fatalf("Error creating new integration -> \nWANT \n%s \ngot \n%s\n", iOk, ni)
 		t.Error(err)
 	}
-	t.Logf("Getting the integration\n")
+	// Getting the integration
 	gi, err := m_store.GetIntegration(ctx, iOk.Name)
 	if err != nil {
 		t.Fatalf("Error getting new integration -> \nWANT \n%s \ngot \n%s\n", iOk, gi)
@@ -113,12 +111,11 @@ func TestGetIntegration(t *testing.T) {
 	if gi.Name != iOk.Name {
 		t.Fatalf("Error getting new integration -> \nWANT \n%s \ngot \n%s\n", iOk, gi)
 	}
-	t.Logf("Deleting the integration\n")
-	res, err := m_store.DeleteIntegration(ctx, iOk)
+	// Deleting the integration
+	_, err = m_store.DeleteIntegration(ctx, iOk)
 	if err != nil {
 		t.Fatalf("Error Deleting the integration -> \n%s\n", err)
 	}
-	t.Log(res)
 }
 
 func TestUpdateIntegrationState(t *testing.T) {
@@ -274,11 +271,9 @@ func TestGetAllLight(t *testing.T) {
 	count := 0
 	for _, light := range lights {
 		if light.Name == mockLight1.Name {
-			t.Log(light.Name)
 			count++
 		}
 		if light.Name == mockLight2.Name {
-			t.Log(light.Name)
 			count++
 		}
 	}
