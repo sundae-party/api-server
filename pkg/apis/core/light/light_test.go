@@ -23,7 +23,7 @@ const bufSize = 1024 * 1024
 var lis *bufconn.Listener
 
 func init() {
-	rootDir()
+	// rootDir()
 	// Create new mongo store
 	mongo := &storage.StoreOption{
 		Type:     "mongo",
