@@ -29,7 +29,7 @@ steps:
       DB_NAME:
         from_secret: db_name
     commands:
-      - sleep 10
+      - sleep 15
       - 'mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "rs.initiate({_id: ''rs0'', members: [{_id: 0, host: ''mongo:27017''}]})"'
       - sleep 2
       - 'mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "db.getSiblingDB(''$${DB_NAME}'').createUser({user: ''$${DB_USER}'', pwd: ''$${DB_PASS}'', roles: [{role: ''readWrite'', db: ''$${DB_NAME}''}]})"'
