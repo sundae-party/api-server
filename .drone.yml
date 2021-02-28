@@ -50,6 +50,7 @@ steps:
       - name: ssl
         path: /etc/sundae/ssl
     commands:
+      - apk --no-cache add curl
       - curl -JL https://github.com/sundae-party/pki/releases/download/v0.1-beta.0/pki_linux-amd64 -o pki
       - chmod +x ./pki
       - ./pki ca --cn sundae.local --dest /etc/sundae/ssl
@@ -62,6 +63,7 @@ steps:
       - name: ssl
         path: /etc/sundae/ssl
     commands:
+      - apk --no-cache add curl
       - curl -JL https://github.com/sundae-party/pki/releases/download/v0.1-beta.0/pki_linux-amd64 -o pki
       - chmod +x ./pki
       - echo "--- CA ---"
