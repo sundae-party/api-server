@@ -44,8 +44,38 @@ steps:
     commands:
       - mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "rs.status()"
 
+  - name: Gen ssl certificates
+    image: alpine:3.13
+    volumes:
+      - name: ssl
+        path: /etc/sundae/ssl
+    commands:
+      - curl -JL https://github.com/sundae-party/pki/releases/download/v0.1-beta.0/pki_linux-amd64 -o pki
+      - chmod +x ./pki
+      - ./pki ca --cn sundae.local --dest /etc/sundae/ssl
+      - ./pki serverCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --cn api-server.lan --sansDns=sundae.local,localhost,sundae.com --sansIp=127.0.0.1 --dest /etc/sundae/ssl
+      - ./pki clientCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --cn integration:mock_integration_test --dest /etc/sundae/ssl
+
+  - name: Check ssl certificats
+    image: alpine:3.13
+    volumes:
+      - name: ssl
+        path: /etc/sundae/ssl
+    commands:
+      - curl -JL https://github.com/sundae-party/pki/releases/download/v0.1-beta.0/pki_linux-amd64 -o pki
+      - chmod +x ./pki
+      - echo "--- CA ---"
+      - ./pki read -c /etc/sundae/ssl/ca.pem -k /etc/sundae/ssl/ca.key
+      - echo "--- Server ---"
+      - ./pki read -c /etc/sundae/ssl/srv.pem -k /etc/sundae/ssl/srv.key
+      - echo "--- Client ---"
+      - ./pki read -c /etc/sundae/ssl/client.pem -k /etc/sundae/ssl/client.key
+
   - name: go-test
     image: sundaeparty/devcontainer:latest
+    volumes:
+      - name: ssl
+        path: /etc/sundae/ssl
     environment:
       MONGO_USR:
         from_secret: db_user
@@ -58,3 +88,7 @@ steps:
     commands:
       - make
       - make go_test
+
+volumes:
+  - name: ssl
+    temp: {}

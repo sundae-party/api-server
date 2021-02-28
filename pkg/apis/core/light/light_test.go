@@ -6,8 +6,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"path"
-	"runtime"
 	"testing"
 
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
@@ -40,7 +38,7 @@ func init() {
 	}
 	// Create mock grpc server
 	lis = bufconn.Listen(bufSize)
-	tlsConfig, err := utils.BuildServerTlsConf([]string{"ssl/ca.pem"}, "ssl/sundae-apiserver.pem", "ssl/sundae-apiserver.key")
+	tlsConfig, err := utils.BuildServerTlsConf([]string{"/etc/sundae/ssl/ca.pem"}, "/etc/sundae/ssl/srv.pem", "/etc/sundae/ssl/srv.key")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,22 +60,13 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return lis.Dial()
 }
 
-func rootDir() {
-	_, b, _, _ := runtime.Caller(0)
-	dir := path.Join(path.Dir(b), "../../../../")
-	err := os.Chdir(dir)
-	if err != nil {
-		panic(err)
-	}
-}
-
 func TestGetAll(t *testing.T) {
 
 	// Prepare GRPC client
 	ctx := context.Background()
 	// Build tls client conf
 
-	cliTlsConf, err := utils.LoadKeyPair("ssl/integration01.pem", "ssl/integration01.key", "ssl/ca.pem")
+	cliTlsConf, err := utils.LoadKeyPair("/etc/sundae/ssl/client.pem", "/etc/sundae/ssl/client.key", "/etc/sundae/ssl/ca.pem")
 	if err != nil {
 		t.Fatalf("TestGetAll failed, gRPC, failed to create client tls config: %v", err)
 	}
