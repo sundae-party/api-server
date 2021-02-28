@@ -51,11 +51,11 @@ steps:
         path: /etc/sundae/ssl
     commands:
       - apk --no-cache add curl
-      - curl -JL https://github.com/sundae-party/pki/releases/download/v0.1-beta.0/pki_linux-amd64 -o pki
+      - curl -JL https://github.com/sundae-party/pki/releases/download/v0.1-beta.1/pki_linux-amd64 -o pki
       - chmod +x ./pki
       - ./pki ca --cn sundae.local --dest /etc/sundae/ssl
-      - ./pki serverCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --cn api-server.lan --sansDns=sundae.local,localhost,sundae.com --sansIp=127.0.0.1 --dest /etc/sundae/ssl
-      - ./pki clientCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --cn integration:mock_integration_test --dest /etc/sundae/ssl
+      - ./pki serverCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --certCn api-server.lan --sansDns=sundae.local,localhost,sundae.com --sansIp=127.0.0.1 --dest /etc/sundae/ssl
+      - ./pki clientCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --certCn integration:mock_integration_test --dest /etc/sundae/ssl
 
   - name: Check ssl certificats
     image: alpine:3.13
@@ -64,7 +64,7 @@ steps:
         path: /etc/sundae/ssl
     commands:
       - apk --no-cache add curl
-      - curl -JL https://github.com/sundae-party/pki/releases/download/v0.1-beta.0/pki_linux-amd64 -o pki
+      - curl -JL https://github.com/sundae-party/pki/releases/download/v0.1-beta.1/pki_linux-amd64 -o pki
       - chmod +x ./pki
       - echo "--- CA ---"
       - ./pki read -c /etc/sundae/ssl/ca.pem -k /etc/sundae/ssl/ca.key
