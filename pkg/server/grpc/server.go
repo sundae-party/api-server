@@ -4,11 +4,12 @@ import (
 	"log"
 	"net"
 
+	ssl_utils "github.com/sundae-party/pki/utils"
+
 	"github.com/sundae-party/api-server/pkg/apis/core/integration"
 	"github.com/sundae-party/api-server/pkg/apis/core/light"
 	"github.com/sundae-party/api-server/pkg/apis/core/sensor"
 	"github.com/sundae-party/api-server/pkg/apis/core/types"
-	"github.com/sundae-party/api-server/pkg/server/utils"
 	"github.com/sundae-party/api-server/pkg/storage"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -20,7 +21,7 @@ type service struct {
 
 func CreateServer(clientCAsPath []string, certPath string, ceyPath string, store storage.Store) {
 
-	tlsConfig, err := utils.BuildServerTlsConf(clientCAsPath, certPath, ceyPath)
+	tlsConfig, err := ssl_utils.BuildServerTlsConf(clientCAsPath, certPath, ceyPath)
 	if err != nil {
 		log.Fatal(err)
 	}

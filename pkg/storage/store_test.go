@@ -263,7 +263,6 @@ func TestGetAllLight(t *testing.T) {
 	}
 
 	// Try to get it
-	t.Logf("Getting all lights\n")
 	lights, err := m_store.GetAllLight(ctx)
 	if err != nil {
 		t.Fatalf("Error getting lights -> %s\n", err)

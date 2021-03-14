@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	ssl_utils "github.com/sundae-party/pki/utils"
 
-	"github.com/sundae-party/api-server/pkg/server/utils"
 	"github.com/sundae-party/api-server/pkg/storage"
 )
 
@@ -151,7 +151,7 @@ func Serve(srvConf ServerConfig, store *storage.Store) {
 
 		// Setting MTLS and SSL termination
 		if srvConf.EnableMTLS {
-			tlsConfig, err := utils.BuildServerTlsConf(srvConf.ClientCAsPath, srvConf.CertPath, srvConf.KeyPath)
+			tlsConfig, err := ssl_utils.BuildServerTlsConf(srvConf.ClientCAsPath, srvConf.CertPath, srvConf.KeyPath)
 			if err != nil {
 				log.Fatal(err)
 			}
