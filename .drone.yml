@@ -4,36 +4,24 @@ name: test
 
 services:
   - name: mongo
-    image: mongo:4
+    image: bitnami/mongodb:4.4
     environment:
-      MONGO_INITDB_ROOT_USERNAME:
-        from_secret: db_admin_user
-      MONGO_INITDB_ROOT_PASSWORD:
+      MONGODB_REPLICA_SET_MODE: primary
+      MONGODB_REPLICA_SET_NAME: rs0
+      MONGODB_ROOT_PASSWORD:
         from_secret: db_admin_pwd
+      MONGODB_REPLICA_SET_KEY: key123
+      MONGODB_ADVERTISED_HOSTNAME: mongo
+      MONGODB_USERNAME:
+        from_secret: db_user
+      MONGODB_PASSWORD:
+        from_secret: db_password
+      MONGODB_DATABASE:
+        from_secret: db_name
     ports:
       - 27017
-    command: [--replSet, rs0]
 
 steps:
-  - name: init-mongodb
-    image: mongo:4
-    environment:
-      DB_ADMIN_USR:
-        from_secret: db_admin_user
-      DB_ADMIN_PWD:
-        from_secret: db_admin_pwd
-      DB_USER:
-        from_secret: db_user
-      DB_PASS:
-        from_secret: db_password
-      DB_NAME:
-        from_secret: db_name
-    commands:
-      - sleep 15
-      - 'mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "rs.initiate({_id: ''rs0'', members: [{_id: 0, host: ''mongo:27017''}]})"'
-      - sleep 2
-      - 'mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "db.getSiblingDB(''$${DB_NAME}'').createUser({user: ''$${DB_USER}'', pwd: ''$${DB_PASS}'', roles: [{role: ''readWrite'', db: ''$${DB_NAME}''}]})"'
-
   - name: Check mongo rs conf
     image: mongo:4
     environment:
