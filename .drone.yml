@@ -30,7 +30,7 @@ steps:
       DB_ADMIN_PWD:
         from_secret: db_admin_pwd
     commands:
-      - sleep 5
+      - sleep 20
       - mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "rs.status()"
 
   - name: Gen ssl certificates
