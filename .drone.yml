@@ -20,6 +20,8 @@ services:
         from_secret: db_name
     ports:
       - 27017
+    commands:
+      - /opt/bitnami/scripts/mongodb/run.sh
 
 steps:
   - name: Check mongo rs conf
