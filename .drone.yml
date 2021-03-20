@@ -20,8 +20,6 @@ services:
         from_secret: db_name
     ports:
       - 27017
-    commands:
-      - /opt/bitnami/scripts/mongodb/run.sh
 
 steps:
   - name: Check mongo rs conf
@@ -32,7 +30,7 @@ steps:
       DB_ADMIN_PWD:
         from_secret: db_admin_pwd
     commands:
-      - sleep 20
+      - sleep 120
       - mongo --host mongo -u $${DB_ADMIN_USR} -p $${DB_ADMIN_PWD} --eval "rs.status()"
 
   - name: Gen ssl certificates
