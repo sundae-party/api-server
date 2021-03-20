@@ -39,7 +39,7 @@ func init() {
 	}
 	// Create mock grpc server
 	lis = bufconn.Listen(bufSize)
-	tlsConfig, err := ssl_utils.BuildServerTlsConf([]string{"/etc/sundae/ssl/ca.pem"}, "/etc/sundae/ssl/srv.pem", "/etc/sundae/ssl/srv.key")
+	tlsConfig, err := ssl_utils.BuildServerTlsConf([]string{"/etc/sundae/ssl/ca.pem"}, "/etc/sundae/ssl/sundae-apiserver.pem", "/etc/sundae/ssl/sundae-apiserver.key")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestGetAll(t *testing.T) {
 	ctx := context.Background()
 	// Build tls client conf
 
-	cliTlsConf, err := ssl_utils.LoadKeyPair("/etc/sundae/ssl/client.pem", "/etc/sundae/ssl/client.key", "/etc/sundae/ssl/ca.pem")
+	cliTlsConf, err := ssl_utils.LoadKeyPair("/etc/sundae/ssl/integration01.pem", "/etc/sundae/ssl/integration01.key", "/etc/sundae/ssl/ca.pem")
 	if err != nil {
 		t.Fatalf("TestGetAll failed, gRPC, failed to create client tls config: %v", err)
 	}

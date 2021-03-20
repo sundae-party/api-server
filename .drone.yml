@@ -54,8 +54,8 @@ steps:
       - curl -JL https://github.com/sundae-party/pki/releases/download/v0.1-beta.1/pki_linux-amd64 -o pki
       - chmod +x ./pki
       - ./pki ca --cn sundae.local --dest /etc/sundae/ssl
-      - ./pki serverCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --certCn api-server.lan --sansDns=sundae.local,localhost,sundae.com --sansIp=127.0.0.1 --dest /etc/sundae/ssl
-      - ./pki clientCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --certCn integration:mock_integration_test --dest /etc/sundae/ssl
+      - ./pki serverCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --certCn api-server.lan --sansDns=sundae.local,localhost,sundae.com --sansIp=127.0.0.1 --dest /etc/sundae/ssl --certFileName sundae-apiserver.pem --keyFileName sundae-apiserver.key
+      - ./pki clientCert --caCert /etc/sundae/ssl/ca.pem --caKey /etc/sundae/ssl/ca.key --certCn integration:mock_integration_test --dest /etc/sundae/ssl --certFileName integration01.pem --keyFileName integration01.key
 
   - name: Check ssl certificats
     image: alpine:3.13
@@ -69,9 +69,9 @@ steps:
       - echo "--- CA ---"
       - ./pki read -c /etc/sundae/ssl/ca.pem -k /etc/sundae/ssl/ca.key
       - echo "--- Server ---"
-      - ./pki read -c /etc/sundae/ssl/srv.pem -k /etc/sundae/ssl/srv.key
+      - ./pki read -c /etc/sundae/ssl/sundae-apiserver.pem -k /etc/sundae/ssl/sundae-apiserver.key
       - echo "--- Client ---"
-      - ./pki read -c /etc/sundae/ssl/client.pem -k /etc/sundae/ssl/client.key
+      - ./pki read -c /etc/sundae/ssl/integration01.pem -k /etc/sundae/ssl/integration01.key
 
   - name: go-test
     image: sundaeparty/devcontainer:latest
