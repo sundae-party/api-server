@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+  api-server:
+    image: sundaeparty/devcontainer:latest
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9443:9443"
+    environment:
+      - MONGO_ADDR=sundae-mongo-dev:27017
+      - MONGO_USR=sundae
+      - MONGO_PWD=sundaepass
+      - MONGO_DB=sundae
+      - MONGO_RS=rs0
+    networks:
+      - sundae-dev-db
+    volumes:
+      # Mounts the project folder to '/workspace'. While this file is in .devcontainer,
+      # mounts are relative to the first file in the list, which is a level up.
+      - ../:/workspace:cached
+    # Overrides default command so things don't shut down after the process ends.
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+  db:
+    image: bitnami/mongodb:4.4
+    container_name: sundae-mongo-dev
+    environment:
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_REPLICA_SET_NAME=rs0
+      - MONGODB_ROOT_PASSWORD=root
+      - MONGODB_REPLICA_SET_KEY=key123
+      - MONGODB_ADVERTISED_HOSTNAME=sundae-mongo-dev
+      - MONGODB_USERNAME=sundae
+      - MONGODB_PASSWORD=sundaepass
+      - MONGODB_DATABASE=sundae
+    networks:
+      - sundae-dev-db
+
+networks:
+  sundae-dev-db:
+    driver: bridge

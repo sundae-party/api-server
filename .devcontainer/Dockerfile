@@ -1,1 +1,0 @@
-FROM sundaeparty/devcontainer:latest

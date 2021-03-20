@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/sundae-party/api-server/pkg/server/grpc"
 	"github.com/sundae-party/api-server/pkg/server/mux"
@@ -14,11 +15,11 @@ func main() {
 	// Create new mongo store
 	mongo := &storage.StoreOption{
 		Type:     "mongo",
-		Address:  []string{"gogs.connan.pro:27018"},
-		User:     "sundae",
-		Password: "pass",
-		DbName:   "sundae",
-		RsName:   "rs0",
+		Address:  []string{os.Getenv("MONGO_ADDR")},
+		User:     os.Getenv("MONGO_USR"),
+		Password: os.Getenv("MONGO_PWD"),
+		DbName:   os.Getenv("MONGO_DB"),
+		RsName:   os.Getenv("MONGO_RS"),
 	}
 	ctx := context.Background()
 	mongoStore, err := storage.NewStore(ctx, mongo)
